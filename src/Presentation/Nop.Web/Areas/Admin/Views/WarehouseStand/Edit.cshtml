@@ -1,0 +1,33 @@
+@model WarehouseStandModel
+
+
+@using Nop.Core.Domain.Warehouses
+@using Nop.Web.Areas.Admin.Models.Warehouses
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.WarehouseStand.EditWarehouseStandDetails").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+<form asp-controller="WarehouseStand" asp-action="Edit" asp-route-warehouseId="@Model.WarehouseId" method="post" id="WarehouseStand-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Warehouses.WarehouseStand.EditWarehouseStandDetails") - @Model.Id
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List" asp-route-warehouseId="@Model.WarehouseId">@T("Admin.Warehouses.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CategoryDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdate", Model)
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="WarehouseStand-delete" />

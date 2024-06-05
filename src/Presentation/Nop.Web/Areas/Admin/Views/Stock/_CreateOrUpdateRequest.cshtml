@@ -1,0 +1,37 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model StockRequestModel
+
+@{
+    const string hideInfoBlockAttributeName = "StockRequestPage.HideInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+    const string hideDisplayBlockAttributeName = "StockRequestPage.HideDisplayBlock";
+    var hideDisplayBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideDisplayBlockAttributeName, defaultValue: true);
+
+    const string hideMappingsBlockAttributeName = "StockRequestPage.HideMappingsBlock";
+    var hideMappingsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideMappingsBlockAttributeName, defaultValue: true);
+
+    const string hideItemBlockAttributeName = "StockHistoryPage.HideItemBlock";
+    var hideItemBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideItemBlockAttributeName, defaultValue: true);
+
+    const string hideProductsBlockAttributeName = "StockRequestPage.HideProductsBlock";
+    var hideProductsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideProductsBlockAttributeName, defaultValue: true);
+}
+
+<input asp-for="Id" id="id" type="hidden" />
+<input asp-for="TypeOfProcess" id="TypeOfProcess" type="hidden" />
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <nop-cards id="Request-cards">
+
+                <stock-card asp-name="StockRequest-info" asp-icon="fas fa-info" asp-title="@T("Admin.Warehouses.Stock.Vendor")" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateRequest.Info", Model)</stock-card>
+                <stock-card asp-name="StockHistory-items" asp-icon="fas fa-search-plus" asp-title="@T("Admin.Common.Item")" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateRequest.Item", Model)</stock-card>
+                <stock-card class="table-view" asp-name="StockRequest-list" asp-icon="fas fa-th-list" asp-title="@T("Admin.Warehouse.Stock.StockItems")" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateRequest.List", Model)</stock-card>
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CategoryDetailsBlock, additionalData = Model })
+            </nop-cards>
+        </div>
+    </div>
+</section>

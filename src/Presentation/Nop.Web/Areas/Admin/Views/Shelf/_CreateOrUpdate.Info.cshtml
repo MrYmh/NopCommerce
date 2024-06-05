@@ -1,0 +1,50 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model ShelfModel
+
+<div class="card-body">
+    @(await Html.LocalizedEditorAsync<ShelfModel, ShelfLocalizedModel>("Shelf-name-localized",
+    @<div>
+        <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+    </div>
+        ,
+    @<div>
+        @* <div class="form-group row">
+        <div class="col-md-2">
+        <nop-label asp-for="StandId" />
+        </div>
+        <div class="col-md-4">
+        <nop-editor  asp-for="StandId" />
+        <span asp-validation-for="StandId"></span>
+        </div>
+        </div> *@
+        <div class="form-group row">
+            <div class="col-md-2">
+                <nop-label asp-for="Barcode" />
+            </div>
+            <div class="col-md-4">
+                <nop-editor asp-for="Barcode" />
+                <span asp-validation-for="Barcode"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-2">
+                <nop-label asp-for="Active" />
+            </div>
+            <div class="col-md-1">
+                <nop-editor asp-for="Active" />
+                <span asp-validation-for="Active"></span>
+            </div>
+        </div>
+
+
+
+    </div>))
+
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#Barcode').prop('disabled', true);
+    });
+</script>

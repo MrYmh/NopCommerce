@@ -1,0 +1,276 @@
+﻿@model int 
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.Barcode.ScanDamagedItems").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model })
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.Barcode.ScanDamagedItems")
+    </h1>
+    <div class="float-right">
+        <button id="addItemForm" type="submit" name="save" class="btn btn-primary">
+            <i class="far fa-save"></i>
+            @T("Admin.Common.Save")
+        </button>
+    </div>
+</div>
+
+
+<form id="LinkItemsToShelf-form" method="post">
+    
+    <input id="WarehouseId" type="text" disabled hidden value="@Model" />
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <stock-card asp-name="ScanDamagedItems" asp-icon="fas fa-barcode" asp-title="@T("Admin.Warehouses.Barcode.ScanItems")" asp-advanced="false">
+                    <div class="form-group row">
+                        <label for="barcode" class="col-sm-3 col-form-label text-right">
+                            @T("Admin.Warehouses.Barcode.DamagedItemBarcode")
+                        </label>
+                        <div class="col-sm-8">
+                            <input id="barcode" type="text" class="form-control" placeholder="@T("Admin.Warehouses.Barcode.DamagedItemBarcode")" />
+                        </div>
+                    </div>
+                </stock-card>
+                <stock-card asp-name="Scanned-Items" asp-icon="fas fa-list-ul" asp-title="@T("Admin.Warehouses.Barcode.ScannedItems")" asp-advanced="false">
+                    <ul id="itemsList"></ul>
+                </stock-card>
+            </div>
+            <ul id="errorsList"></ul>
+        </div>
+    </section>
+    
+    
+
+</form>
+
+
+<!-- Confirmation Modal using Bootstrap -->
+<div class="modal" tabindex="-1" role="dialog" id="confirmationModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@T("Admin.Warehouses.Barcode.ConfirmSubmission")</h5>
+                <button type="button" class="close" onclick="cancelSumbission()" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>@T("Admin.Warehouses.Barcode.Confirmation")</p>
+                <p><i class="fas fa-exclamation-circle"></i>@T("Admin.Warehouses.Barcode.ConfirmationHeader")</p>
+                <p id="errors" class="text-danger"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmSubmit">@T("Admin.Warehouses.Barcode.ConfirmationSubmit")</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="cancelSumbission()">@T("Admin.Warehouses.Barcode.ConfirmationCancel")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    $(document).ready(function ()
+    {
+        console.log($('#WarehouseId').val());
+        // Focus on the field to start scanning immediately.
+        $('#barcode').focus();
+
+        // Handler for 'enter' in the barcode field
+        $('#barcode').on('keypress', function (e) 
+        {
+            // Prevent form submission
+            if (e.which == 13) 
+            {
+                e.preventDefault();
+
+                // Get the value from the fields
+                var itemBarcode = $('#barcode').val();
+
+                // Generate a unique ID for each entry to handle deletion
+                var uniqueId = 'i-' + (new Date()).getTime();
+
+                if (itemBarcode !== '') 
+                {
+
+                    // Validate the barcode.
+                    if (!isValidItemBarcode(itemBarcode)) 
+                    {
+                        if (!isInvalidBarcodeEnteredBefore(itemBarcode)) 
+                        {
+                            $('#errorsList').append(`<li id="${uniqueId}" class="btn btn-sm btn-danger m-2"  onclick="hideItem('${uniqueId}')">${itemBarcode} <i class="fa fa-exclamation-circle ml-2"></i></li>`);
+                        }
+                    }
+                    else 
+                    {
+                        if (!isBarcodeEnteredBefore(itemBarcode)) 
+                        {
+                            $('#itemsList').append(`<li id="${uniqueId}" class="btn btn-sm btn-outline-success m-2">${itemBarcode} <i class="fa fa-times ml-2" onclick="deleteItem('${uniqueId}')"></i></li>`);
+                        }
+                    }
+                }
+
+                // Clear the second field and refocus it for next entry
+                $('#barcode').val('').focus();
+
+                // Here you could also add AJAX to save the data server-side
+                // saveData(barcode, quantity);
+            }
+        });
+
+        $('#addItemForm').on('click', function (e) 
+        {
+            // Prevent the form from submitting normally
+            e.preventDefault();
+
+            var $saveButton = $('#addItemForm');
+
+            // Disable the save button
+            $saveButton.prop('disabled', true);
+
+            // Re-enable the button after some time if needed (for safety)
+            setTimeout(function () {
+                $saveButton.prop('disabled', false);
+            }, 10000); // Adjust the timeout as needed
+
+            //if we have any errors
+            if ($('#errorsList li').length > 0) 
+            {
+                var errorsHtml = "";
+
+                $('#errorsList li').each(function (index, element) 
+                {
+                    index++;
+                    errorsHtml += `<div>${index} - ` + $(this).text() + `</div>`;
+                });
+
+                $('#errors').html(errorsHtml);
+
+                // Show the confirmation modal
+                $('#confirmationModal').modal('show');
+            }
+            else 
+            {
+                //prepare data to be sent
+                var itemsBarcodes = $('#itemsList li').map(function () 
+                {
+                    return $(this).text().trim();
+                }).get();
+
+                var apiUrl = `/api/StockAction/ScanDamagedItems`;
+                // Perform the AJAX request
+                saveData(apiUrl, itemsBarcodes);
+
+                // Hide the modal
+                $('#confirmationModal').modal('hide');
+            }
+        });
+
+        $('#confirmSubmit').on('click', function (e) {
+            // Prevent the form from submitting normally
+            e.preventDefault();
+
+            //prepare data to be sent
+            var itemsBarcodes = $('#itemsList li').map(function () {
+                return $(this).text().trim();
+            }).get();
+
+            var apiUrl = `/api/StockAction/ScanDamagedItems`;
+            // Perform the AJAX request
+            saveData(apiUrl, itemsBarcodes);
+
+            // Hide the modal
+            $('#confirmationModal').modal('hide');
+        });
+
+    });
+
+    //Sending the data to the server to be saved
+    function saveData(apiUrl, itemsBarcodes) {
+        $.ajax({
+            url: apiUrl,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(itemsBarcodes),
+            success: function (response) {
+                // Clear form fields on successful submission
+                $('#barcode').val('');
+                $('#itemsList').empty();
+                $('#errorsList').empty();
+                $('#errors').empty();
+
+                // Hide the modal
+                $('#confirmationModal').modal('hide');
+                location.reload();
+                // Optionally, inform the user of success
+                console.log('Items have been damaged successfully!');
+            },
+            error: function (xhr, status, error) {
+                location.reload();
+                // Handle errors here
+                console.log('Error while damaging items:', xhr.status, xhr.responseText)
+            }
+        });
+    }
+
+    // // And when showing the modal, just make sure to show the errors again:
+    $('#confirmationModal').on('show.bs.modal', function () {
+        $('#errors').show();
+    });
+
+    // Handle click on the confirm button in the modal
+
+
+    function cancelSumbission() {
+        $('#errors').hide();
+    }
+
+    function isValidItemBarcode(barcode) {
+        var warehouseId = $('#WarehouseId').val();
+        if (!barcode.startsWith(`${warehouseId}-`)) {
+            return false;
+        }
+        return true;
+    }
+
+    function isBarcodeEnteredBefore(barcode) {
+        var isEntered = false;
+        $('#itemsList li').each(function () {
+            if ($(this).text().trim() === barcode.trim() || $(this).text().split('-')[1] === barcode.split('-')[1]) {
+                isEntered = true;
+                return false;
+            }
+        });
+        return isEntered;
+    }
+
+    function isInvalidBarcodeEnteredBefore(barcode) {
+        var isEntered = false;
+        $('#errorsList li').each(function () {
+            if ($(this).text().trim() === barcode.trim()) {
+                isEntered = true;
+                return false;
+            }
+        });
+        return isEntered;
+    }
+
+    function deleteItem(itemId) {
+        // Remove the item from the UI
+        $('#' + itemId).remove();
+    }
+
+    function hideItem(itemId) {
+        // Hide the item from the UI
+        $('#' + itemId).hide();
+    }
+
+</script>

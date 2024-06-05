@@ -1,0 +1,69 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseStandModel
+
+<div class="card-body">
+    @(await Html.LocalizedEditorAsync<WarehouseStandModel, WarehouseStandLocalizedModel>("WarehouseStand-name-localized",
+    @<div>
+
+        <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+    </div>
+        ,
+    @<div>
+
+        <div class="form-group row">
+            <div class="col-md-2">
+                <nop-label asp-for="Description" />
+            </div>
+            <div class="col-md-8">
+                <nop-editor id="description" asp-for="Description" asp-required="true" />
+                <span asp-validation-for="Description"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-2">
+                <nop-label asp-for="MaterialType" />
+            </div>
+            <div class="col-md-8">
+                <nop-editor asp-for="MaterialType" asp-required="true" />
+                <span asp-validation-for="MaterialType"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-2">
+                <nop-label asp-for="NoOfShelves" />
+            </div>
+            <div class="col-md-2">
+                <nop-editor asp-for="NoOfShelves" />
+                <span asp-validation-for="NoOfShelves"></span>
+            </div>
+        </div>
+
+        @if (!Model.IsEditMode)
+        {
+            <div class="form-group row">
+                <div class="col-md-2">
+                    <nop-label asp-for="NoOfStands" />
+                </div>
+                <div class="col-md-2">
+                    <nop-editor asp-for="NoOfStands" />
+                    <span asp-validation-for="NoOfStands"></span>
+                </div>
+            </div>
+        }
+
+        <div class="form-group row">
+            <div class="col-md-2">
+                <nop-label asp-for="Active" />
+            </div>
+            <div class="col-md-1">
+                <nop-editor asp-for="Active" />
+                <span asp-validation-for="Active"></span>
+            </div>
+        </div>
+
+    </div>))
+
+
+</div>

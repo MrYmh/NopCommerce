@@ -1,0 +1,44 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model AcceptStockRequestModel
+
+<div class="card-body">
+    @(await Html.LocalizedEditorAsync<AcceptStockRequestModel, AcceptStockRequestLocalizedModel>("StockHistory-name-localized",
+        @<div>
+            @*Generate FormLocalizedprops here*@
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+        </div>
+        ,
+        @<div>
+
+        <div class="form-group row">
+            <div class="col-md-4">
+                <nop-label asp-for="StockRequest.VendorName" />
+            </div>
+            <div class="col-md-8 w-100">
+                <input class="form-control text-box single-line" disabled id="vendor" asp-for="StockRequest.VendorName" />
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-4">
+                <nop-label asp-for="StockRequest.TypeOfProcess" />
+            </div>
+            <div class="col-md-8 w-100">
+                <div class="form-control text-box single-line">
+
+                    @if((int)Model.StockRequest.TypeOfProcess == 1){
+                   @T("Admin.Warehouses.Stock.Values.Receiving") 
+                    }else if((int)Model.StockRequest.TypeOfProcess == 2){
+                    @T("Admin.Warehouses.Stock.Values.ReturnedToVendor") 
+                    }else{
+                    @T("Admin.Warehouses.Stock.Values.test")
+                    }
+               </div>
+            </div>
+        </div>
+
+        
+
+        </div>))
+
+</div>

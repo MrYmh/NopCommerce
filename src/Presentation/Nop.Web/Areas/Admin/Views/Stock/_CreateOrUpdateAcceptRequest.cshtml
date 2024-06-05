@@ -1,0 +1,51 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model AcceptStockRequestModel
+
+@{
+    const string hideInfoBlockAttributeName = "WarehouseProductPage.HideInfoBlock";
+    var customer = await workContext.GetCurrentCustomerAsync();
+    var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideInfoBlockAttributeName);
+
+    const string hideDisplayBlockAttributeName = "WarehouseProductPage.HideDisplayBlock";
+    var hideDisplayBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideDisplayBlockAttributeName, defaultValue: true);
+
+    const string hideMappingsBlockAttributeName = "WarehouseProductPage.HideMappingsBlock";
+    var hideMappingsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideMappingsBlockAttributeName, defaultValue: true);
+
+    const string hideItemBlockAttributeName = "StockHistoryPage.HideItemBlock";
+    var hideItemBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideItemBlockAttributeName, defaultValue: true);
+
+    const string hideProductsBlockAttributeName = "WarehouseProductPage.HideProductsBlock";
+    var hideProductsBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideProductsBlockAttributeName, defaultValue: true);
+}
+
+
+<input asp-for="Id" id="id" type="hidden" />
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            @* <div class="row">
+                <div class="col-md-12 clearfix">
+                    <div class="float-left">
+                        @await Component.InvokeAsync(typeof(SettingModeViewComponent), new { modeName = "category-advanced-mode" })
+                    </div>
+                </div>
+            </div> *@
+
+            <nop-cards id="category-cards">
+                <stock-card asp-name="StockHistory-info" asp-icon="fas fa-info" asp-title="@T("Admin.Warehouses.Stock.RequestData")"  asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateAcceptRequest.Info", Model)</stock-card>
+                <stock-card class="table-view" asp-name="StockHistory-list" asp-icon="fas fa-th-list" asp-title="@T("Admin.Warehouse.Stock.StockRequestItems")" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateAcceptRequest.List", Model)</stock-card>
+                <stock-card asp-name="StockHistory-items" asp-icon="fas fa-search-plus" asp-title="@T("Admin.Common.StockActions")" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdateAcceptRequest.Action", Model)</stock-card>
+
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CategoryDetailsBlock, additionalData = Model })
+            </nop-cards>
+        </div>
+    </div>
+</section>
+<style>
+    /* .table-view{
+        margin-left: 2rem;
+    } */
+
+</style>

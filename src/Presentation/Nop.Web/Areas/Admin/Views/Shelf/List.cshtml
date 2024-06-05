@@ -1,0 +1,195 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model ShelfSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.Shelf.List").Text;
+    NopHtml.SetActiveMenuItemSystemName("Shelf");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "ShelfPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model.WarehouseId })
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.Shelf")
+    </h1>
+</div>
+<div class="content-header clearfix">
+    <div class="float-right">
+
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.ShelfListButtons, additionalData = Model })
+        @* <button type="button" id="delete-selected" class="btn btn-danger">
+            <i class="far fa-trash-alt"></i>
+            @T("Admin.Common.Delete.Selected")
+        </button> *@
+        @* <nop-action-confirmation asp-button-id="delete-selected" /> *@
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    @*Search Inputs Marker*@
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="Barcode" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="Barcode" />
+                                        </div>
+                                    </div><div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="StandId" />
+                                        </div>
+                                        <div class="col-md-8">
+                                             <nop-editor asp-for="StandId"  /> 
+                                            @* <input class="input-group input-group-required" type="number" min="0" /> *@
+
+                                        </div>
+                                    </div>
+                                    @* <div class="form-group row" @(Model.HideStoresList ? Html.Raw("style=\"display:none\"") : null)>
+                                    <div class="col-md-4">
+                                    <nop-label asp-for="SearchStoreId" />
+                                    </div>
+                                    <div class="col-md-8">
+                                    <nop-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                    </div>
+                                    </div> *@
+                                </div>
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-Shelf" class="btn btn-primary btn-search"><i class="fas fa-search"></i>@T("Admin.Common.Search")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        @* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.Categories", Docs.Categories + Utm.OnAdmin)" /> *@
+
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                        {
+                            Name = "Shelf-grid",
+                            UrlRead = new DataUrl("List", "Shelf", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                            SearchButtonId = "search-Shelf",
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes,
+                            Filters = new List<FilterParameter>
+                            {
+                                new FilterParameter(nameof(Model.Barcode)),
+                                new FilterParameter(nameof(Model.StandId))
+                            },
+
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                // new ColumnProperty(nameof(ShelfModel.Id))
+                                // {
+                                //     IsMasterCheckBox = true,
+                                //     Render = new RenderCheckBox("checkbox_Shelf"),
+                                //     ClassName = NopColumnClassDefaults.CenterAll,
+                                //     Width = "50"
+                                // },
+
+                                new ColumnProperty(nameof(ShelfModel.Barcode))
+                                {
+                                    Title = T("Admin.Warehouses.Shelf.Fields.Barcode").Text,
+                                    ClassName = NopColumnClassDefaults.CenterAll
+                                },
+
+                                new ColumnProperty(nameof(ShelfModel.StandId))
+                                {
+                                    Title = T("Admin.Warehouses.Shelf.Fields.StandId").Text,
+                                    ClassName = NopColumnClassDefaults.CenterAll
+                                },
+
+                                new ColumnProperty(nameof(ShelfModel.Active))
+                                {
+                                    Title = T("Admin.Warehouses.Shelf.Fields.Active").Text,
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderCustom("renderActiveStatus")
+                                },
+
+                                new ColumnProperty(nameof(ShelfModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "100",
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderCustom("renderColumnEdit")
+                                }
+                            }
+                        })
+                        <script>
+                            function renderColumnEdit(data, type, row, meta) {
+                                var warehouseId = @Model.WarehouseId; // assuming 'warehouseId' is part of your row data
+                                var id = data; // 'data' should be the ID of the warehouse category mapping
+                                var url = '/Admin/Shelf/Edit?id=' + id + '&warehouseId=' + warehouseId;
+                                return '<a href="' + url + '" class="btn btn-primary">' + '@T("Admin.Common.Edit")' + '</a>';
+                            }
+                        </script>
+                        <script>
+                            $(document).ready(function () {
+
+                                $('#StandId').attr('min', '0');
+
+                                $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                                    var postData = {
+                                        selectedIds: selectedIds
+                                    };
+                                    addAntiForgeryToken(postData);
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        url: "@(Url.Action("DeleteSelected", "Shelf"))",
+                                        data: postData,
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            showAlert('deleteSelectedFailed', errorThrown);
+                                        },
+                                        complete: function (jqXHR, textStatus) {
+                                            if (jqXHR.status === 204) {
+                                                showAlert('nothingSelectedAlert', '@T("Admin.Common.Alert.NothingSelected")');
+                                                return;
+                                            }
+                                            updateTable('#Shelf-grid');
+                                        }
+                                    });
+                                    $('#delete-selected-action-confirmation').modal('toggle');
+                                    return false;
+                                });
+                            });
+
+                            function renderActiveStatus(data, type, row) {
+                                return data? '@T("Admin.Warehouses.Shelf.Values.Active")' : '@T("Admin.Warehouses.Shelf.Values.Inactive")';
+                            }
+
+                        </script>
+                        <nop-alert asp-alert-id="deleteSelectedFailed" />
+                        <nop-alert asp-alert-id="nothingSelectedAlert" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+

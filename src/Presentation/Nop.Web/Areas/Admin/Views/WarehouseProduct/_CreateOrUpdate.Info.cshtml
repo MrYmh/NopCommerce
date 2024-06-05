@@ -1,0 +1,103 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseProductModel
+
+<div class="card-body">
+    <input type="hidden" id="productName" asp-for="@Model.Name" />
+    <input type="hidden" id="productSku" asp-for="@Model.Sku" />
+    @(await Html.LocalizedEditorAsync<WarehouseProductModel, WarehouseProductLocalizedModel>("WarehouseProduct-name-localized",
+    @<div>
+        <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+    </div>
+        ,
+    @<div>
+
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="WarehouseProductCategoryMappingId" />
+            </div>
+            <div class="col-md-9">
+                <nop-select id="WarehouseProductCategoryMappingId" asp-for="WarehouseCategoryMappingId" asp-required="true" asp-items="@Model.AvailableWarehouseProductCategoryMappingIds" />
+                <span asp-validation-for="WarehouseProductCategoryMappingId"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="ProductId" />
+            </div>
+            <div class="col-md-9">
+                @* <nop-select  /> *@
+                <nop-select id="ProductId" asp-for="ProductId" asp-required="true" />
+                <span asp-validation-for="ProductId"></span>
+            </div>
+        </div>
+
+    </div>))
+
+
+    <script type="text/javascript">
+
+        var products = [];
+
+        $(document).ready(function () {
+
+            loadAvailableProducts();
+            setProductDataToForm()
+
+            $('#WarehouseProductCategoryMappingId').change(function (){
+                loadAvailableProducts();
+                setProductDataToForm();
+            });
+
+            $('#ProductId').change(function () {
+                setProductDataToForm()
+            });
+        });
+
+        function setProductDataToForm(){
+
+            var productId = parseInt($('#ProductId').val(), 10); // Ensure the ID is an integer
+            var product = products.find(product => product.Id === productId);
+
+            if (product) {
+                $('#productName').val(product.Name);
+                $('#productSku').val(product.Sku);
+            } else {
+                $('#productName').val(''); // Clear previous values
+                $('#productSku').val('');
+            }
+        }
+
+        function loadAvailableProducts() {
+
+            var selectedValue = $('#WarehouseProductCategoryMappingId').val();
+
+            if (selectedValue) {
+                var apiUrl = "/api/WarehouseProducts/GetProductsByCategoryMappingId?warehouseCategoryMappingId=" + selectedValue;
+                $.ajax({
+
+                    url: apiUrl,
+                    type: 'GET',
+                    success: function (res) {
+                        var productsDropdown = $('#ProductId');
+                        productsDropdown.empty();
+                        products.length = 0;
+                        productsDropdown.append('<option selected disabled>Choose Product</option>');
+                        $.each(res, function (index, item) {
+                            products.push(item);
+                            productsDropdown.append($('<option>', {
+                                value: item.Id,
+                                text: item.Name
+                            }));
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error: " + status + error);
+                    }
+                });
+            }
+
+        }
+    </script>
+
+
+</div>

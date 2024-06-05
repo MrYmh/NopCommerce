@@ -1,0 +1,46 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model AcceptStockRequestModel
+
+
+    <div class="card-body">
+        @(await Html.LocalizedEditorAsync<AcceptStockRequestModel, AcceptStockRequestLocalizedModel>("StockHistory-name-localized",
+        @<div>
+            @*Generate FormLocalizedprops here*@
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+        </div>
+            ,
+        @<div>
+            @*Generate Formprops here*@
+
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <nop-label asp-for="Comment" />
+                </div>
+                <div class="col-md-8 w-100">
+                    <nop-editor id="vendor" asp-for="Comment" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-3" ></div>
+                <div class="form-check col-md-3">
+                <input class="form-check-input" asp-for="Accepted" value="true" type="radio" name="Accepted" id="flexRadioDefault1">
+                    <label class="form-check-label" asp-for="Accepted" for="flexRadioDefault1">
+                    @T("Admin.Warehouses.StockAction.Values.Accepted")
+                    </label>
+                </div>
+                <div class="form-check col-md-3">
+                <input class="form-check-input" asp-for="Accepted" value="false" type="radio" name="Accepted" id="flexRadioDefault2">
+                    <label class="form-check-label" asp-for="Accepted" for="flexRadioDefault2">
+                    @T("Admin.Warehouses.StockAction.Values.Refused")
+                    </label>
+                </div>
+                <div class="col-md-3"></div>
+
+            </div>
+
+            
+
+        </div>))
+
+    </div>

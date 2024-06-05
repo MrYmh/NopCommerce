@@ -1,0 +1,154 @@
+﻿@model int
+
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id =Model })
+
+
+<div class="home">
+
+    <div class="row">
+        <div class="col-md-5" style="width:100px; height:200px;">
+            <canvas id="myChart2"></canvas>
+        </div>
+        <div class="col-md-1">
+            <div class="vertical-line"></div>
+        </div>
+        <div class="col-md-5" style="width:100px; height:300px;">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+    <div class="table-style">
+        <div class="container table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">First</th>
+                        <th scope="col">Last</th>
+                        <th scope="col">Handle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>mdo</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                        <td>fat</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>Larry</td>
+                        <td>the Bird</td>
+                        <td>twitter</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">4</th>
+                        <td>Larry</td>
+                        <td>the Bird</td>
+                        <td>twitter</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">5</th>
+                        <td>Larry</td>
+                        <td>the Bird</td>
+                        <td>twitter</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+<style>
+    .home{
+        display:flex;
+        flex-direction:column;
+        /* display:flex;
+        display:flex; */
+    }
+
+    .table-style{
+        margin-top: 0.5rem !important;
+        
+    }
+
+    .vertical-line {
+        position: absolute;
+        
+        height: 300px; /* Line spans the full height of the viewport */
+        width: 1px; /* Thickness of the line */
+        background-color: #808080; /* Color of the line, black here */
+        left: 60%; /* Positions the left of the line at the center of the page */
+        transform: translateX(-50%); /* Shifts the line left by half its width to center it exactly */
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('myChart');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+
+    const data2 = {
+  labels: [
+    'Red',
+    'Blue',
+    'Yellow'
+  ],
+  datasets: [{
+    label: 'My First Dataset',
+    data: [300, 50, 100],
+    backgroundColor: [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)'
+    ],
+    hoverOffset: 4
+  }]
+};
+
+    const ctx2 = document.getElementById('myChart2');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: data2
+        
+    });
+
+    const ctx3 = document.getElementById('myChart3');
+    new Chart(ctx3, {
+        type: 'doughnut',
+        data: data2
+
+    });
+
+</script>

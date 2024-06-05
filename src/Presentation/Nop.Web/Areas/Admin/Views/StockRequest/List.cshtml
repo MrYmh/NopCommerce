@@ -1,0 +1,304 @@
+﻿@using Nop.Web.Areas.Admin.Models.Warehouses
+@model StockRequestSearchModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.StockRequest").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model.WarehouseId })
+
+@{
+    const string hideSearchBlockAttributeName = "StockPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.StockRequest")
+    </h1>
+    <div class="float-right">
+        <a asp-controller="Stock" asp-action="CreateStockReceivingRequestRecord" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
+            <i class="fas fa-plus-square"></i>
+            @T("Admin.Warehouses.Stock.AddNewReceivedStock")
+        </a>
+        <a asp-action="CreateReturningToVendorRequestRecord" asp-controller="Stock" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
+            <i class="fas fa-minus-square"></i>
+            @T("Admin.Warehouses.Stock.AddNewReturnToVendor")
+        </a>
+
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.StockListButtons, additionalData = Model })
+        
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="StockRequestId" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="StockRequestId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="VendorName" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="VendorName" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="TypeOfProcess" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            
+                                            <select asp-for="TypeOfProcess" class="form-control">
+                                                <option value="0">@T("Admin.Warehouses.Stock.Values.All") </option>
+                                                <option value="1">@T("Admin.Warehouses.Stock.Values.Receiving")</option>
+                                                <option value="2">@T("Admin.Warehouses.Stock.Values.ReturnedToVendor")</option>
+                                                @* <option value="3">@T("Admin.Warehouses.Stock.Values.ReturnedFromCustomer")</option>
+                                                <option value="4">@T("Admin.Warehouses.Stock.Values.Damaged")</option>
+                                                <option value="5">@T("Admin.Warehouses.Stock.Values.Ordered")</option> *@
+                                            </select>
+
+                                        </div>
+                                    </div>
+                               
+
+                                    <div class="form-group row">
+                                        <div class="text-center col-12" style="display:flex; justify-content:center; align-items:center;">
+                                            <button type="button" id="search-StockRequest" class="btn btn-primary btn-search"><i class="fas fa-search"></i>@T("Admin.Common.Search")</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        @* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.Categories", Docs.Categories + Utm.OnAdmin)" /> *@
+
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                   {
+                       Name = "Stock-grid",
+                       UrlRead = new DataUrl("List", "StockRequest", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                       SearchButtonId = "search-StockRequest",
+                       Length = Model.PageSize,
+                       LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
+                       {
+                            new FilterParameter(nameof(Model.StockRequestId)),
+                            new FilterParameter(nameof(Model.VendorName)),
+                            new FilterParameter(nameof(Model.TypeOfProcess)),
+                           // new FilterParameter(nameof(Model.SearchStoreId)),
+                           // new FilterParameter(nameof(Model.SearchPublishedId))
+                       },
+                       ColumnCollection = new List<ColumnProperty>
+                        {
+                        // new ColumnProperty(nameof(StockRequestModel.Id))
+                        // {
+                        // IsMasterCheckBox = true,
+                        // Render = new RenderCheckBox("checkbox_StockRequest"),
+                        // ClassName =  NopColumnClassDefaults.CenterAll,
+                        // Width = "50"
+                        // },
+                        //Generate your fields here
+                        new ColumnProperty(nameof(StockRequestModel.Id))
+                        {
+                        Title = T("Admin.Warehouses.StockRequest.Fields.Id").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(StockRequestModel.VendorName))
+                        {
+                        Title = T("Admin.Warehouses.StockRequest.Fields.Vendor").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll
+                        },new ColumnProperty(nameof(StockRequestModel.TypeOfProcess))
+                        {
+                            Title = T("Admin.Warehouses.Stock.Fields.TypeOfProcess").Text,
+                            ClassName =  NopColumnClassDefaults.CenterAll,
+                            Render = new RenderCustom("renderProcessType")
+                        },
+                        new ColumnProperty(nameof(StockRequestModel.Id))
+                        {
+                            Title = T("Admin.Common.Edit").Text,
+                            Width = "100",
+                        ClassName =  NopColumnClassDefaults.CenterAll,
+                            Render =  new RenderCustom("renderColumnEdit")
+                        },
+                        new ColumnProperty(nameof(StockRequestModel.Id))
+                        {
+                        Title = T("Admin.Common.Review").Text,
+                            Width = "100",
+                            ClassName =  NopColumnClassDefaults.CenterAll,
+                            Render =  new RenderCustom("renderColumnAccept")
+                        }
+                        }
+                   })
+                        <script>
+                            function renderColumnEdit(data, type, row, meta) {
+                                var warehouseId = @Model.WarehouseId; // assuming 'warehouseId' is part of your row data
+                                var id = data; // 'data' should be the ID of the warehouse category mapping
+                                var typeOfProcess = row.TypeOfProcess;
+                                var url = "";
+                                if (typeOfProcess === 1) {
+                                    url = '/Admin/Stock/UpdateStockReceivingRequestRecord?id=' + id + '&warehouseId=' + warehouseId;
+                                } else if (typeOfProcess === 2) {
+                                    url = '/Admin/Stock/UpdateReturningToVendorRequestRecord?id=' + id + '&warehouseId=' + warehouseId;
+                                } else {
+                                    
+                                }
+
+
+                                //return '<a href="' + url + '" class="btn btn-primary">Edit</a>';
+                                        return '<a href="' + url + '" class="btn btn-primary">' + '@T("Admin.Common.Edit")' + '</a>';
+                            }
+
+                            function renderProcessType(data, type, row) {
+
+                                if (data == 1) {
+                                    return '@T("Admin.Warehouses.Stock.Values.Receiving")';
+                                } else if (data == 2) {
+                                    return '@T("Admin.Warehouses.Stock.Values.ReturnedToVendor")';
+                                }
+                                // else if (data == 3) {
+                                //     return 'T("Admin.Warehouses.Stock.Values.ReturnedFromCustomer")';
+                                // } else if (data == 4) {
+                                //     return 'T("Admin.Warehouses.Stock.Values.Damaged")';
+                                // } else if (data == 5) {
+                                //     return 'T("Admin.Warehouses.Stock.Values.Ordered")';
+                                // } 
+                                else {
+                                    return '@T("Admin.Warehouses.Stock.Values.NotAssigned")'
+                                }
+                            }
+
+
+                            // Render function for the DataTable
+                            // function renderColumnAccept(data, type, row, meta) {
+                            //     return '<button onclick="openAcceptModal(' + row.StockRequestId + ',' + row.RequestorId + ',' + row.WarehouseId + ')" class="btn btn-primary">Accept</button>';
+                            // }
+
+                                    function renderColumnAccept(data, type, row, meta) {
+                                        var warehouseId = @Model.WarehouseId; // assuming 'warehouseId' is part of your row data
+                                        var id = data; // 'data' should be the ID of the warehouse category mapping
+                                        var Reviewed = row.Reviewed;
+                                        var url = "";
+
+                                        url = '/Admin/Stock/CreateAcceptStockRequest?id=' + id + '&warehouseId=' + warehouseId;
+                                        
+                                            //url = '/Admin/Stock/UpdateReturningToVendorRequestRecord?id=' + id + '&warehouseId=' + warehouseId;
+                                        if(Reviewed === true){
+                                    return '<button class="btn btn-primary" disabled> ' + '@T("Admin.Common.Review")' + ' </button>';
+                                            
+                                        }else{
+                                    return '<a  href="' + url + '" class="btn btn-primary"> ' + '@T("Admin.Common.Review")' + ' </a>';
+                                        }
+                                        
+
+                                        
+                                    }
+
+                                    // Function to open the modal and set data
+                            // function openAcceptModal(stockRequestId, requestorId, warehouseId) {
+                            //     $('#stockRequestId').val(stockRequestId);
+                            //     $('#requestorId').val(requestorId);
+                            //     $('#warehouseId').val(warehouseId);
+                            //     $('#acceptRequestModal').modal('show');
+                            // }
+
+                            // Function to submit the form
+                            // function submitAcceptRequest() {
+                            //     var formData = {
+                            //         RequestorId: $('#requestorId').val(),
+                            //         StockRequestId: $('#stockRequestId').val(),
+                            //         Accepted: $('input[name="accepted"]:checked').val() === 'true',
+                            //         Comment: $('#comment').val(),
+                            //         WarehouseId: $('#warehouseId').val()
+                            //     };
+
+                            //     $.ajax({
+                            //         type: 'POST',
+                            //         url: '/api/WarehouseProducts/CreateAcceptStockRequest',  // Adjust the URL as needed
+                            //         contentType: 'application/json',
+                            //         data: JSON.stringify(formData),
+                            //         success: function (response) {
+                            //             $('#acceptRequestModal').modal('hide');
+                            //             alert('Request processed: ' + response.message);
+                            //             // Optionally refresh the DataTable or update UI here
+                            //         },
+                            //         error: function (xhr, status, error) {
+                            //             alert('Error processing request: ' + error);
+                            //         }
+                            //     });
+                            // }
+                        </script>
+
+                        
+                        <nop-alert asp-alert-id="deleteSelectedFailed" />
+                        <nop-alert asp-alert-id="nothingSelectedAlert" />
+                    </div>
+                </div>
+
+
+        <!-- Modal HTML -->
+        <div id="acceptRequestModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Accept Stock Request</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="acceptRequestForm">
+                            <div class="form-group">
+                                <label for="comment">Comment</label>
+                                <textarea id="comment" name="comment" class="form-control"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="radio" name="accepted" value="true" checked> Accept
+                                </label>
+                                <label>
+                                    <input type="radio" name="accepted" value="false"> Reject
+                                </label>
+                            </div>
+                            <input type="hidden" id="requestorId" name="requestorId">
+                            <input type="hidden" id="stockRequestId" name="stockRequestId">
+                            <input type="hidden" id="warehouseId" name="warehouseId">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="submitAcceptRequest()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+

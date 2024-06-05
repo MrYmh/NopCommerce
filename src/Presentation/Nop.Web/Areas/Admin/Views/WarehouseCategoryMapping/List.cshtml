@@ -1,0 +1,184 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseCategoryMappingSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.WarehouseCategoryMapping.List").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "WarehouseCategoryMappingPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model.WarehouseId })
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.WarehouseCategoryMapping")
+    </h1>
+</div>
+<div class="content-header clearfix">
+    @* <div class="float-left">
+        <a asp-controller="WarehouseManagment" asp-action="List" asp-route-id="@Model.WarehouseId" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-circle-left"></i>
+            @T("Warehouse.Home")
+        </a>
+    </div> *@
+    <div class="float-right">
+        <a asp-action="Create" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
+            <i class="fas fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+        
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.WarehouseCategoryMappingListButtons, additionalData = Model })
+        <button type="button" id="delete-selected" class="btn btn-danger">
+            <i class="far fa-trash-alt"></i>
+            @T("Admin.Common.Delete.Selected")
+        </button>
+        <nop-action-confirmation asp-button-id="delete-selected" />
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-8">
+<div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchWarehouseCategoryName" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchWarehouseCategoryName" />
+                                        </div>
+                                    </div>
+                                    @* <div class="form-group row" @(Model.HideStoresList ? Html.Raw("style=\"display:none\"") : null)>
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchStoreId" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                        </div>
+                                    </div> *@
+                                </div>
+                              
+                            </div>
+                            <div class="form-group row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-WarehouseCategoryMapping" class="btn btn-primary btn-search"><i class="fas fa-search"></i>@T("Admin.Common.Search")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        @* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.Categories", Docs.Categories + Utm.OnAdmin)" /> *@
+
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                   {
+                       Name = "WarehouseCategoryMapping-grid",
+                       UrlRead = new DataUrl("List", "WarehouseCategoryMapping", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                       SearchButtonId = "search-WarehouseCategoryMapping",
+                       Length = Model.PageSize,
+                       LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
+                        {
+                        new FilterParameter(nameof(WarehouseCategoryMappingSearchModel.SearchWarehouseCategoryName)),
+                        },
+                       ColumnCollection = new List<ColumnProperty>
+                        {
+                        new ColumnProperty(nameof(WarehouseCategoryMappingModel.Id))
+                        {
+                        IsMasterCheckBox = true,
+                        Render = new RenderCheckBox("checkbox_WarehouseCategoryMapping"),
+                        ClassName =  NopColumnClassDefaults.CenterAll,
+                        Width = "50"
+                        },
+                        //Generate your fields here
+                        new ColumnProperty(nameof(WarehouseCategoryMappingModel.Name))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseCategoryMapping.Fields.Name").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(WarehouseCategoryMappingModel.Description))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseCategoryMapping.Fields.Description").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        }
+                        // ,                       
+                        
+                        // new ColumnProperty(nameof(WarehouseCategoryMappingModel.Id))
+                        // {
+                        // Title = T("Admin.Common.Edit").Text,
+                        // Width = "100",
+                        // ClassName =  NopColumnClassDefaults.CenterAll,
+                        // Render = new RenderCustom("renderColumnEdit")
+                        // //{"warehouseId", Model.WarehouseId} , {"id" , Model.WarehouseCategoryMappingModel.Id}
+                        // }
+                        
+                        }
+                   })
+
+                        @* <script>
+                            function renderColumnEdit(data, type, row, meta) {
+                                var warehouseId = @Model.WarehouseId; // assuming 'warehouseId' is part of your row data
+                                var id = data; // 'data' should be the ID of the warehouse category mapping
+                                var url = '/Admin/WarehouseCategoryMapping/Edit?id=' + id + '&warehouseId=' + warehouseId;
+
+                                return '<a href="' + url + '" class="btn btn-primary">Edit</a>';
+                            }
+                        </script> *@
+
+                        <script>
+                            $(document).ready(function () {
+                                $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                                    var postData = {
+                                        selectedIds: selectedIds
+                                    };
+                                    addAntiForgeryToken(postData);
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        url: "@(Url.Action("DeleteSelected", "WarehouseCategoryMapping"))",
+                                        data: postData,
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            showAlert('deleteSelectedFailed', errorThrown);
+                                        },
+                                        complete: function (jqXHR, textStatus) {
+                                            if (jqXHR.status === 204) {
+                                                showAlert('nothingSelectedAlert', '@T("Admin.Common.Alert.NothingSelected")');
+                                                return;
+                                            }
+                                            updateTable('#WarehouseCategoryMapping-grid');
+                                        }
+                                    });
+                                    $('#delete-selected-action-confirmation').modal('toggle');
+                                    return false;
+                                });
+                            });
+                        </script>
+                        <nop-alert asp-alert-id="deleteSelectedFailed" />
+                        <nop-alert asp-alert-id="nothingSelectedAlert" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+

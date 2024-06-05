@@ -1,0 +1,45 @@
+@using Nop.Core.Domain.Warehouses
+@using Nop.Web.Areas.Admin.Models.Warehouses
+
+@model ShelfModel
+
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.Shelf.EditShelfDetails").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+<form asp-controller="Shelf" asp-route-warehouseId="@Model.WarehouseId" asp-action="Edit" method="post" id="Shelf-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Warehouses.Shelf.EditShelfDetails") - @Model.Id
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List" asp-route-warehouseId="@Model.WarehouseId">@T("Admin.Warehouses.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            @* <button type="button" onclick="javascript:OpenWindow('@(Url.RouteUrl<Category>(new { SeName = Model.SeName }))', 800, 600, true); return false;" class="btn btn-info">
+                <i class="far fa-eye"></i>
+                @T("Admin.Common.Preview")
+            </button> *@
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            @* <button type="submit" name="save-continue" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            <span id="category-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                @T("Admin.Common.Delete")
+            </span> *@
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CategoryDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdate", Model)
+</form>
+@* <nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="Shelf-delete" /> *@

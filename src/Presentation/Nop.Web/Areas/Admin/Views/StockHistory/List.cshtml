@@ -1,0 +1,228 @@
+﻿@using Nop.Web.Areas.Admin.Models.Warehouses
+@model StockHistorySearchModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.Stock").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model.WarehouseId })
+
+@{
+    const string hideSearchBlockAttributeName = "StockPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.Stock")
+    </h1>
+    <div class="float-right">
+        <a asp-controller="Stock" asp-action="CreateReceivingRecord" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
+            <i class="fas fa-plus-square"></i>
+            @T("Admin.Warehouses.Stock.AddNewReceivedStock")
+        </a>
+        <a asp-action="CreateReturningToVendorRecord" asp-controller="Stock" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
+            <i class="fas fa-minus-square"></i>
+            @T("Admin.Warehouses.Stock.AddNewReturnToVendor")
+        </a>
+       
+
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.StockListButtons, additionalData = Model })
+        
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="StockHistoryId" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="StockHistoryId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="VendorName" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="VendorName" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="TypeOfProcess" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            @* <nop-editor asp-for="TypeOfProcess" /> *@
+                                            <select asp-for="TypeOfProcess" class="form-control">
+                                                <option value="0">@T("Admin.Warehouses.Stock.Values.All")</option>
+                                                <option value="1">@T("Admin.Warehouses.Stock.Values.Receiving")</option>
+                                                <option value="2">@T("Admin.Warehouses.Stock.Values.ReturnedToVendor")</option>
+                                                @* <option value="3">@T("Admin.Warehouses.Stock.Values.ReturnedFromCustomer")</option>
+                                                <option value="4">@T("Admin.Warehouses.Stock.Values.Damaged")</option>
+                                                <option value="5">@T("Admin.Warehouses.Stock.Values.Ordered")</option> *@
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-stockHistory" class="btn btn-primary btn-search"><i class="fas fa-search"></i>@T("Admin.Common.Search")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        @* <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.Categories", Docs.Categories + Utm.OnAdmin)" /> *@
+
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                   {
+                       Name = "Stock-grid",
+                       UrlRead = new DataUrl("List", "StockHistory", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                       SearchButtonId = "search-stockHistory",
+                       Length = Model.PageSize,
+                       LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
+                        {
+                        new FilterParameter(nameof(Model.StockHistoryId)),
+                        new FilterParameter(nameof(Model.VendorName)),
+                        new FilterParameter(nameof(Model.TypeOfProcess))
+                        // new FilterParameter(nameof(Model.Priority)),
+                        },
+                       ColumnCollection = new List<ColumnProperty>
+                        {
+                        // new ColumnProperty(nameof(StockHistoryModel.Id))
+                        // {
+                        // IsMasterCheckBox = true,
+                        // Render = new RenderCheckBox("checkbox_StockHistory"),
+                        // ClassName =  NopColumnClassDefaults.CenterAll,
+                        // Width = "50"
+                        // },
+                        new ColumnProperty(nameof(StockHistoryModel.Id))
+                        {
+                            Title = T("Admin.Warehouses.StockHistory.Fields.Id").Text,
+                            ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(StockHistoryModel.VendorName))
+                        {
+                            Title = T("Admin.Warehouses.StockHistory.Fields.Vendor").Text,
+                            ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(StockHistoryModel.TypeOfProcess))
+                        {
+                            Title = T("Admin.Warehouses.Stock.Fields.TypeOfProcess").Text,
+                            ClassName =  NopColumnClassDefaults.CenterAll,
+                            Render = new RenderCustom("renderProcessType")
+                        },
+
+                        new ColumnProperty(nameof(StockHistoryModel.Id))
+                        {
+                        Title = T("Admin.Common.Edit").Text,
+                        Width = "100",
+                        ClassName =  NopColumnClassDefaults.CenterAll,
+                        // Render = new RenderButtonEdit(new DataUrl("UpdateReceivingRecord" , "Stock" , new RouteValueDictionary{
+                        // {"warehouseId", Model.WarehouseId}
+                        // }))
+                        Render =  new RenderCustom("renderColumnEdit")
+                        }
+                        }
+                   })
+                        <script>
+                            function renderColumnEdit(data, type, row, meta) {
+                                var warehouseId = @Model.WarehouseId; // assuming 'warehouseId' is part of your row data
+                                var id = data; // 'data' should be the ID of the warehouse category mapping
+                                var typeOfProcess = row.TypeOfProcess;
+                                var url = "";
+                                if (typeOfProcess === 1) {
+                                    url = '/Admin/Stock/UpdateReceivingRecord?id=' + id + '&warehouseId=' + warehouseId;
+                                } else if (typeOfProcess === 2) {
+                                    url = '/Admin/Stock/UpdateReturningToVendorRecord?id=' + id + '&warehouseId=' + warehouseId;
+                                } else {
+                                    // Default case for other types
+                                    // url = `${baseUrl}?id=${id}&warehouseId=${warehouseId}&type=other`;
+                                }
+
+
+                                return '<a href="' + url + '" class="btn btn-primary">' + '@T("Admin.Common.Edit")' + '</a>';
+                            }
+
+                            function renderProcessType(data, type, row) {
+
+                                if (data == 1) {
+                                    return '@T("Admin.Warehouses.Stock.Values.Receiving")';
+                                } else if (data == 2) {
+                                    return '@T("Admin.Warehouses.Stock.Values.ReturnedToVendor")';
+                                } else if (data == 3) {
+                                    return '@T("Admin.Warehouses.Stock.Values.ReturnedFromCustomer")';
+                                } else if (data == 4) {
+                                    return '@T("Admin.Warehouses.Stock.Values.Damaged")';
+                                } else if (data == 5) {
+                                    return '@T("Admin.Warehouses.Stock.Values.Ordered")';
+                                } else {
+                                    return '@T("Admin.Warehouses.Stock.Values.NotAssigned")'
+                                }
+                            }
+                        </script>
+
+                        @* <script>
+                        $(document).ready(function () {
+                        $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                        var postData = {
+                        selectedIds: selectedIds
+                        };
+                        addAntiForgeryToken(postData);
+                        $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "@(Url.Action("DeleteSelected", "WarehouseProduct"))",
+                        data: postData,
+                        error: function (jqXHR, textStatus, errorThrown) {
+                        showAlert('deleteSelectedFailed', errorThrown);
+                        },
+                        complete: function (jqXHR, textStatus) {
+                        if (jqXHR.status === 204) {
+                        showAlert('nothingSelectedAlert', '@T("Admin.Common.Alert.NothingSelected")');
+                        return;
+                        }
+                        updateTable('#WarehouseProduct-grid');
+                        }
+                        });
+                        $('#delete-selected-action-confirmation').modal('toggle');
+                        return false;
+                        });
+                        });
+                        </script> *@
+                        <nop-alert asp-alert-id="deleteSelectedFailed" />
+                        <nop-alert asp-alert-id="nothingSelectedAlert" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+

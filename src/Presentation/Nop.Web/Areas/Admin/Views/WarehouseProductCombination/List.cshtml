@@ -1,0 +1,143 @@
+﻿@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseProductCombinationSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.WarehouseProductCombination.List").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "WarehouseProductCombinationPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model.WarehouseId })
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.WarehouseProductCombination")
+    </h1>
+</div>
+<div class="content-header clearfix">
+   @*  <div class="float-left">
+         <a asp-controller="WarehouseManagment" asp-action="List" asp-route-id="@Model.WarehouseId" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-circle-left"></i>
+            @T("Warehouse.Home")
+        </a> 
+    </div> *@
+    <div class="float-right">
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.WarehouseProductCombinationListButtons, additionalData = Model })
+        @* <button type="button" id="delete-selected" class="btn btn-danger">
+            <i class="far fa-trash-alt"></i>
+            @T("Admin.Common.Delete.Selected")
+        </button> *@
+        @* <nop-action-confirmation asp-button-id="delete-selected" /> *@
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="Sku" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="Sku" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-productCombinations" class="btn btn-primary btn-search"><i class="fas fa-search"></i>@T("Admin.Common.Search")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                   {
+                       Name = "war-categories-grid",
+                       UrlRead = new DataUrl("List", "WarehouseProductCombination", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                       SearchButtonId = "search-productCombinations",
+                       Length = Model.PageSize,
+                       LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
+                        {
+                            new FilterParameter(nameof(Model.Sku))
+                        },
+                       ColumnCollection = new List<ColumnProperty>
+                        {
+                            new ColumnProperty(nameof(WarehouseProductCombinationModel.Sku))
+                            {
+                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.Sku").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll
+                            },
+                            new ColumnProperty(nameof(WarehouseProductCombinationModel.AttributesXml))
+                            {
+                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.AttributesXml").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll,
+                                Render = new RenderCustom("renderProductAttributesCombinationsColumnAttributesXml")
+                            },
+                            new ColumnProperty(nameof(WarehouseProductCombinationModel.TotalQuantity))
+                            {
+                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.TotalQuantity").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll
+                            },
+                            new ColumnProperty(nameof(WarehouseProductCombinationModel.DamagedQuantity))
+                            {
+                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.DamagedQuantity").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll
+                            },
+                            new ColumnProperty(nameof(WarehouseProductCombinationModel.ReturnedToVendorQuantity))
+                            {
+                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.ReturnedToVendorQuantity").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll
+                            },
+                            new ColumnProperty(nameof(WarehouseProductCombinationModel.Available))
+                            {
+                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.Available").Text,
+                                ClassName =  NopColumnClassDefaults.CenterAll,
+                                Render = new RenderCustom("renderAvailabilityStatus")
+                            }
+                        }
+                   })
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function renderProductAttributesCombinationsColumnAttributesXml(data, type, row, meta) {
+        var warnings = (row.Warnings != null) ? '<div><span style="color: red">' + row.Warnings + '</span></div>' : '';
+        return row.AttributesXml + warnings;
+    }
+
+    function renderAvailabilityStatus(data, type, row) {
+        return data ? '@T("Admin.Warehouses.WarehouseProductCombination.Values.Available")' : '@T("Admin.Warehouses.WarehouseProductCombination.Values.Unavailable")';
+    }
+</script>
+
+

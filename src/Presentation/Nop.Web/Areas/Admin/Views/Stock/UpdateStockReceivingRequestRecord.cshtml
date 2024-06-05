@@ -1,0 +1,85 @@
+﻿@using Nop.Web.Areas.Admin.Models.Warehouses
+@model StockRequestModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.Stock.EditReceivedStockRequest").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+<form id="Stock-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Warehouses.Stock.EditReceivedStockRequest")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-controller="StockRequest" asp-action="List" asp-route-warehouseId="@Model.WarehouseId">@T("Admin.Warehouses.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button name="save" id="sendData2" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CategoryDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdateRequest", Model)
+</form>
+
+
+<script>
+    $(document).ready(function () {
+        $('#sendData2').click(function (event) {
+            event.preventDefault();
+            // Collect the vendor ID
+            var vendorId = $('#vendor').val();
+            var id = $('#id').val();
+            var TypeOfProcess = $('#TypeOfProcess').val();
+
+            // Initialize the array for stock items
+            var stockItems = [];
+
+            // Iterate over each row in the table
+            $('#stockItemsTable tbody tr').each(function () {
+                var row = $(this);
+                stockItems.push({
+                    Sku: row.find('td:eq(0) input').val().trim(),
+                    StockQuantity: parseInt(row.find('td:eq(1) input').val().trim()),
+                    UnitPrice: parseFloat(row.find('td:eq(2) input').val().trim()),
+                    Tax: parseFloat(row.find('td:eq(3) input').val().trim()),
+                    Discount: parseFloat(row.find('td:eq(4) input').val().trim()),
+                    Profit: parseFloat(row.find('td:eq(5) input').val().trim()),
+                    WarehouseProductCombinationId: parseInt(row.find('td:eq(6) input').val().trim()),
+                    Id: parseInt(row.find('td:eq(7) input').val().trim())
+
+
+
+                });
+            });
+
+            // Create the stock history model
+            var stockHistoryModel = {
+                Id: id,
+                TypeOfProcess: TypeOfProcess,
+                VendorId: vendorId,
+                StockRequestItems: stockItems
+            };
+
+            // Make the AJAX call to your API
+            $.ajax({
+                url: '/api/WarehouseProducts/UpdateStockReceivingRequest?warehouseId=' + @Model.WarehouseId, // Make sure this URL is correct
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(stockHistoryModel),
+                success: function (response) {
+                    // alert('Data submitted successfully: ' + response.message);
+                    window.location.href = '/Admin/StockRequest/List?warehouseId=' + @Model.WarehouseId ;
+                },
+                error: function (xhr, status, error) {
+                    alert('Error submitting data: ' + error);
+                }
+            });
+        });
+    });
+</script>

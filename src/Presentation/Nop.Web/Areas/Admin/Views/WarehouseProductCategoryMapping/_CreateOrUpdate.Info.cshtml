@@ -1,0 +1,89 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseProductCategoryMappingModel
+
+<div class="card-body">
+
+    <input id="IsEditMode" type="hidden" asp-for="@Model.IsEditMode" />
+
+    @(await Html.LocalizedEditorAsync<WarehouseProductCategoryMappingModel, WarehouseProductCategoryMappingLocalizedModel>("WarehouseProductCategoryMapping-name-localized",
+        @<div>
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+        </div>
+        ,
+        @<div>
+
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="WarehouseCategoryMappingId" />
+            </div>
+            <div class="col-md-9">
+                <nop-select asp-for="WarehouseCategoryMappingId" asp-items="@Model.AvailableMappedWarehouseCategories" />
+                <span asp-validation-for="WarehouseCategoryMappingId"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="ProductCategoryId" />
+            </div>
+            <div class="col-md-9">
+                <nop-select asp-for="SelectedProductCategoriesIds" asp-items="@Model.AvailableProductCategories" />
+                <span asp-validation-for="SelectedProductCategoriesIds"></span>
+            </div>
+        </div>
+        
+        </div>))
+</div>
+
+<script>
+    $(document).ready(function () 
+    {
+        $('#SelectedProductCategoriesIds').addClass('form-control');
+        console.log('class form-control applied.')
+        console.log('Value of IsEditMode is: ' + $('#IsEditMode').val())
+        isEditModeActivated();
+
+    });
+
+    function isEditModeActivated()
+    {
+        var isEditMode = $('#IsEditMode').val().toString();
+        if (isEditMode === 'False')
+        {
+            console.log('Code applied.')
+            // Add the Bootstrap Select class, enable multiple selection
+            $('#SelectedProductCategoriesIds').attr('multiple', 'multiple');
+
+            // Applying styles to the select element
+            $('#SelectedProductCategoriesIds').css(
+                {
+                'height': '250px',
+                'max-height': '250px',
+                'overflow-y': 'auto',
+                'border': '1px solid #ced4da',
+                'border-radius': '0.25rem',
+                'padding': '0.375rem 0.75rem'
+                }
+            );
+
+            // Change overflow on hover or focus
+            $('#SelectedProductCategoriesIds').hover(
+                function () { $(this).css('overflow-y', 'scroll'); },
+                function () { $(this).css('overflow-y', 'auto'); }
+            );
+
+            $('#SelectedProductCategoriesIds').focus(function () 
+            {
+                $(this).css('overflow-y', 'scroll');
+            }).blur(function () 
+            {
+                $(this).css('overflow-y', 'auto');
+            });
+
+            // Style the options via CSS as jQuery cannot directly style pseudo-elements or options
+            $('head').append('<style>#SelectedProductCategoriesIds option:checked { background-color: #007bff; color: white; }</style>');
+
+        }
+    }
+
+</script>

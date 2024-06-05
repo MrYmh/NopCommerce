@@ -1,0 +1,81 @@
+﻿@model int
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.SystemSetup").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model })
+
+<div class="container mt-5">
+    <div class="row">
+        
+        <!-- Warehouse Stands -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.SystemSetup.WarehouseStands")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.SystemSetup.WarehouseStandsDesc")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseStand" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.SystemSetup.WarehouseStandsButton")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Shelves -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.SystemSetup.WarehouseShelves")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.SystemSetup.WarehouseShelvesDesc")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Shelf" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.SystemSetup.WarehouseShelvesButton")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Category Mapping -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.SystemSetup.WarehouseCategories")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.SystemSetup.WarehouseCategoriesDesc")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseCategoryMapping" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.SystemSetup.WarehouseCategoriesButton")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Product Category Mapping -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.SystemSetup.WarehouseProductCategories")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.SystemSetup.WarehouseProductCategoriesDesc")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseProductCategoryMapping" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.SystemSetup.WarehouseProductCategoriesButton")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Products -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.SystemSetup.WarehouseProducts")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.SystemSetup.WarehouseProductsDesc")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseProduct" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.SystemSetup.WarehouseProductsButton")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Product Combinations -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.SystemSetup.WarehouseProductCombinations")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.SystemSetup.WarehouseProductCombinationsDesc")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseProductCombination" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.SystemSetup.WarehouseProductCombinationsButton")</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

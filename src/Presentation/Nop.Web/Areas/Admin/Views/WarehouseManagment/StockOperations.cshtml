@@ -1,0 +1,114 @@
+﻿@model int
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.StockOperations").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model })
+
+<div class="container mt-5">
+    <div class="row">
+
+        <!-- Receiving Stock Action -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="StockHistory" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Button")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Damaging Stock Action -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.DamagingStockAction.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.DamagingStockAction.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="DamageStock" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.DamagingStockAction.Button")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Print Barcodes -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.PrintBarcodes.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.PrintBarcodes.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="PrintBarcodes" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.PrintBarcodes.Button")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scan Received Items -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.ScanReceivedItems.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.ScanReceivedItems.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="ScanReceivedItems" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.ScanReceivedItems.Button")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Link Items To Shelf -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.LinkItemsToShelf.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.LinkItemsToShelf.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="MapItemToShelf" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.LinkItemsToShelf.Button")</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Request Action -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.StockRequestAction.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.StockRequestAction.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="StockRequest" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.StockRequestAction.Button")</a>
+                </div>
+            </div>
+        </div>
+
+       @*  <!-- Receiving Stock Request -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">Receiving Stock Requests</h5>
+                    <p class="card-text flex-grow-1 my-2">Displays the list of receiving stock requests, and allows you to manage these requests into the warehouse.</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="StockRequest" asp-action="List" asp-route-warehouseId="@Model">Receiving Stocks</a>
+                </div>
+            </div>
+        </div> *@
+
+        @* <!-- Returning Stock Request -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">Returning Stock Requests</h5>
+                    <p class="card-text flex-grow-1 my-2">Displays the list of stock requests for returns, and allows you to manage these requests into the warehouse.</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="StockRequest" asp-action="List" asp-route-warehouseId="@Model">Returning Stocks</a>
+                </div>
+            </div>
+        </div> *@
+
+        <!-- Accepting Stock Requests -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.AcceptingStockRequests.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.AcceptingStockRequests.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="AcceptStockRequest" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.AcceptingStockRequests.Button")</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,25 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model StockRequestModel
+
+<div class="card-body">
+    @(await Html.LocalizedEditorAsync<StockRequestModel, StockRequestLocalizedModel>("StockHistory-name-localized",
+        @<div>
+            @*Generate FormLocalizedprops here*@
+            <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+        </div>
+        ,
+        @<div>
+        @*Generate Formprops here*@
+
+        <div class="form-group row">
+            <div class="col-md-3">
+                <nop-label asp-for="VendorId" />
+            </div>
+            <div class="col-md-6">
+                <nop-select id="vendor" asp-for="VendorId" asp-items="@Model.AvailableVendors" />
+            </div>
+        </div>
+
+        </div>))
+
+</div>

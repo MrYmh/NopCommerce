@@ -1,0 +1,51 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model AcceptStockRequestModel
+
+<div class="card-body">
+    
+        <div class="row">
+        <div class="col-md-12 d-flex justify-content-center align-items-center">
+                <div class="panel">
+                   
+                    <div class="panel-body table-responsive">
+                    <table id="stockItemsTable" class="table table-center table-bordered" >
+                        <thead class="text-center">
+                                <tr >
+                                    <th>Sku</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Tax</th>
+                                    <th>Discount</th>
+                                    <th>Profit</th>
+                                <th class="d-none">Combination</th>
+                                <th class="d-none">Id</th>
+                                    @* <th >Delete</th> *@
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var item in Model.StockRequestItems)
+                            {
+                                <tr>
+                                    <td><input disabled type="text" class="form-control sku-input"  value="@item.Sku" /></td>
+
+                                    <td><input disabled type="number" class="form-control stock-quantity" value="@item.StockQuantity" /></td>
+                                    <td><input disabled type="number" class="form-control unit-price" value="@item.UnitPrice" /></td>
+                                    <td><input disabled type="number" class="form-control tax" value="@item.Tax" /></td>
+                                    <td><input disabled type="number" class="form-control discount" value="@item.Discount" /></td>
+                                    <td><input disabled type="number" class="form-control profit" value="@item.Profit" /></td>
+                                    <td class="d-none"><input type="number" disabled class="form-control WarehouseProductCombinationId" value="@item.WarehouseProductCombinationId" /></td>
+                                    <td class="d-none"><input hidden type="text" class="form-control id-input" value="@item.Id" /></td>
+                                    @* <td><button type="button" class="btn btn-danger delete-btn">Delete</button></td> *@
+                                </tr>
+                            }
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                   
+                </div>
+            </div>
+        </div>
+    
+</div>

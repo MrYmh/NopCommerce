@@ -1,0 +1,196 @@
+﻿@model int
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.Barcode.PrintBarcodes").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model })
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.Barcode.PrintBarcodes")
+    </h1>
+    <div class="float-right">
+        <button id="print" type="submit" name="save" class="btn btn-primary">
+            <i class="far fa-save"></i>
+            @T("Admin.Common.Print")
+        </button>
+    </div>
+</div>
+
+<form id="printBarcodes" method="post">
+    <input id="WarehouseId" type="text" disabled hidden value="@Model" />
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <stock-card asp-name="StockHistory-items" asp-icon="fas fa-file" asp-title="@T("Admin.Common.Print")" asp-advanced="false">
+                    <div class="form-group row">
+                        <label for="sku" class="col-sm-3 col-form-label text-right">
+                            @T("Admin.Warehouses.Barcode.Sku")
+                        </label>
+                        <div class="col-sm-6">
+                            <input id="sku" type="text" class="form-control" placeholder="@T("Admin.Warehouses.Barcode.Sku")" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="Quantity" class="col-sm-3 col-form-label text-right">
+                            @T("Admin.Warehouses.Barcode.Quantity")
+                        </label>
+                        <div class="col-sm-6">
+                            <input id="Quantity" type="number" min="1" max="200" class="form-control" placeholder="@T("Admin.Warehouses.Barcode.Quantity")" />
+                        </div>
+                        <div class="col-sm-3">
+                            <p id="quantityError"></p>
+                        </div>
+                    </div>
+                </stock-card>
+                
+            </div>
+        </div>
+    </section>
+</form>
+
+<script>
+
+    $(document).ready(function () 
+    {
+        // Focus on the field to start writing th sku immediately.
+        $('#sku').focus();
+
+        // Handler for 'enter' in the sku field
+        $('#sku').on('keypress', function (e) 
+        {
+            if (e.which == 13)
+            {
+                // Prevent form submission
+                e.preventDefault();
+
+                // Get the value from the fields
+                var sku = $('#sku').val();
+
+                if (sku !== '')
+                {
+                    $('#Quantity').focus();
+                }
+                else
+                {
+                    $('#sku').val('').focus();
+                }
+            }
+        });
+
+        // Handler for 'enter' in the Quntity field
+        $('#Quantity').on('keypress', function (e) 
+        {
+            if (e.which == 13)
+            {
+                //prevent form submission
+                e.preventDefault();
+
+                //user entered quantity in range.
+                if (isQuantityValid($('#Quantity').val()))
+                {
+                    //generate the pdf
+                    generatePDF();
+                }
+                else
+                {
+                    $('#Quantity').focus();
+                }
+            }
+        });
+
+        $('#print').on('click', function (e) 
+        {
+            //prevent form submission
+            e.preventDefault();
+
+            var $saveButton = $('#print');
+
+            // Disable the save button
+            $saveButton.prop('disabled', true);
+
+            // Re-enable the button after some time if needed (for safety)
+            setTimeout(function () {
+                $saveButton.prop('disabled', false);
+            }, 10000); // Adjust the timeout as needed
+
+            //user entered quantity in range.
+            if (isQuantityValid($('#Quantity').val()))
+            {
+                //generate the pdf
+                generatePDF();
+            }
+        });
+    });
+
+    function isQuantityValid(quantity)
+    {
+        if (parseInt(quantity) > 0 || parseInt(quantity) <= 200) {
+            $('#errorMessage').remove();
+            return true;
+        }
+        $('#quantityError').html('<span id="errorMessage" style="color:red;">' + '@T("Admin.Warehouses.Barcode.QuantityError")' + '</span>') //Allowed range is between 1 and 200.
+        return false;
+    }
+
+    function generatePDF() 
+    {
+        // prepare data
+        var warehouseId = $('#WarehouseId').val();
+        var sku = $('#sku').val();
+        var quantity = $('#Quantity').val();
+        console.log(warehouseId);
+        console.log(sku);
+        console.log(quantity);
+        var apiUrl = `/api/StockAction/GetUnprintedBarcodes?warehouseId=${warehouseId}&sku=${sku}&quantity=${quantity}`;
+        // Perform the AJAX request
+        $.ajax(
+        {
+            url: apiUrl,
+            type: 'POST',
+            xhrFields:
+            {
+                responseType: 'blob'  // Important for handling binary data
+            },
+            success: function (data) 
+            {
+                // Create a Blob from the PDF data
+                var blob = new Blob([data], { type: 'application/pdf' });
+
+                // Generate a URL for the Blob
+                var pdfUrl = URL.createObjectURL(blob);
+
+                // Create and open a new window for the PDF
+                var pdfWindow = window.open("");
+                pdfWindow.document.write(
+                    '<html><head><title>Barcodes PDF</title></head><body style="margin:0; height:100%;">' +
+                    '<iframe src="' + pdfUrl + '" style="width:100%; height:100%; border:none;"></iframe>' +
+                    '</body></html>'
+                );
+
+                pdfWindow.document.close();
+
+                // Clean up the Blob URL after the window is closed
+                pdfWindow.onbeforeunload = function () 
+                {
+                    URL.revokeObjectURL(pdfUrl);
+                };
+
+                
+
+                //clear the input fields
+                $('#sku').val('').focus();
+                $('#Quantity').val('');
+            },
+            error: function (xhr, status, error) 
+            {
+                // Handle errors here
+                console.log('Error while generating the pdf:', xhr.status, xhr.responseText)
+            }
+        });
+    }
+
+</script>

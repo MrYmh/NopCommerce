@@ -1,0 +1,71 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseProductCategoryMappingModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.WarehouseProductCategoryMapping.AddNew").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+<form asp-controller="WarehouseProductCategoryMapping" asp-action="Create" asp-route-warehouseId="@Model.WarehouseId" method="post" id="WarehouseProductCategoryMapping-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Warehouses.WarehouseProductCategoryMapping.AddNew")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List" asp-route-warehouseId="@Model.WarehouseId">@T("Admin.Warehouses.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button id="saveButton" type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CategoryDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdate", Model)
+</form>
+
+<script>
+    $(document).ready(function () {
+
+        // Form submission event
+        $('form').submit(function (e) {
+            var $saveButton = $('#saveButton');
+
+            // Disable the save button
+            $saveButton.prop('disabled', true);
+
+            // Re-enable the button after some time if needed (for safety)
+            setTimeout(function () {
+                $saveButton.prop('disabled', false);
+            }, 10000); // Adjust the timeout as needed
+
+            return true;
+        });
+
+        // Initial check and disable button if no options selected
+        updateSubmitButtonState();
+
+        // Listen for changes in the selection
+        $('#SelectedProductCategoriesIds').change(function () {
+            updateSubmitButtonState();
+        });
+
+    });
+
+    function updateSubmitButtonState() 
+    {
+        var selectedOptions = $('#SelectedProductCategoriesIds').val();
+        if (selectedOptions.length > 0) 
+        {
+            $('#saveButton').prop('disabled', false);
+        }
+        else 
+        {
+            $('#saveButton').prop('disabled', true);
+        }
+    }
+</script>

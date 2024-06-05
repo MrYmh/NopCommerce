@@ -1,0 +1,28 @@
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseProductModel
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.WarehouseProduct.AddNew").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+<form asp-controller="WarehouseProduct" asp-action="Create" asp-route-warehouseId="@Model.WarehouseId" method="post" id="WarehouseProduct-form">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Admin.Warehouses.WarehouseProduct.AddNew")
+            <small>
+                <i class="fas fa-arrow-circle-left"></i>
+                <a asp-action="List" asp-route-warehouseId="@Model.WarehouseId">@T("Admin.Warehouses.BackToList")</a>
+            </small>
+        </h1>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
+                @T("Admin.Common.Save")
+            </button>
+            @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CategoryDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdate", Model)
+</form>

@@ -1,0 +1,349 @@
+﻿@using Nop.Web.Areas.Admin.Models.Warehouses
+@model StockHistoryModel
+@* @model StockItemHistoryModel *@
+
+<div class="card-body">
+
+
+
+    <div id="productDetailsForm">
+
+        
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.Sku" />
+            </div>
+            <div class="col-md-6">
+                <input id="skuInput" class="form-control text-box single-line" asp-for="StockItem.Sku" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.ProductName" />
+            </div>
+            <div class="col-md-6">
+                <input id="ProductName" class="form-control text-box single-line" asp-for="StockItem.ProductName" disabled />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.AttributesXml" />
+            </div>
+            <div class="col-md-6">
+                <input hidden id="WarehouseProductCombinationId" class="form-control text-box single-line" asp-for="StockItem.WarehouseProductCombinationId" disabled />
+                <input id="WarehouseProductCombinationAtt" class="form-control text-box single-line" asp-for="StockItem.AttributesXml" disabled />
+            </div>
+        </div>
+       
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.StockQuantity" />
+            </div>
+            <div class="col-md-6">
+                <input id="StockQuantity" class="form-control text-box single-line" asp-for="StockItem.StockQuantity" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.UnitPrice" />
+            </div>
+            <div class="col-md-6">
+                <input id="UnitPrice" class="form-control text-box single-line" asp-for="StockItem.UnitPrice" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.Tax" />
+            </div>
+            <div class="col-md-6">
+                <input id="Tax" class="form-control text-box single-line" asp-for="StockItem.Tax" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.Discount" />
+            </div>
+            <div class="col-md-6">
+                <input id="Discount" class="form-control text-box single-line" asp-for="StockItem.Discount" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-md-3">
+                <nop-label asp-for="StockItem.Profit" />
+            </div>
+            <div class="col-md-6">
+                <input id="Profit" class="form-control text-box single-line" asp-for="StockItem.Profit" />
+            </div>
+        </div>
+
+        <div class="row form-group mt-3 d-flex justify-content-center">
+            <button class="btn btn-primary" id="addProductData">Add Product</button>
+        </div> 
+
+    </div>
+ 
+
+
+        <style>
+
+</style>
+       
+    <script type="text/javascript">
+
+        var stockItems = [];
+
+        //assign stockItems if exist:
+
+        // Iterate over each row in the table
+        $('#stockItemsTable tbody tr').each(function () {
+            var row = $(this);
+            stockItems.push({
+                Sku: row.find('td:eq(0) input').val().trim(),
+                StockQuantity: parseInt(row.find('td:eq(1) input').val().trim()),
+                UnitPrice: parseFloat(row.find('td:eq(2) input').val().trim()),
+                Tax: parseFloat(row.find('td:eq(3) input').val().trim()),
+                Discount: parseFloat(row.find('td:eq(4) input').val().trim()),
+                Profit: parseFloat(row.find('td:eq(5) input').val().trim()),
+                WarehouseProductCombinationId: parseInt(row.find('td:eq(6) input').val().trim())
+
+
+
+            });
+        });
+
+
+        $(document).ready(function() {
+
+            //handle inputs
+            var inputs = $('#productDetailsForm input[type="text"]:not([disabled])');
+            var addButton = $('#addProductData');
+            inputs.keypress(function (e) {
+                // Check if the pressed key is "Enter"
+                if (e.which == 13) {
+                    e.preventDefault(); // Prevent the default action (form submission)
+                    var nextInput = inputs.get(inputs.index(this) + 1);
+                    if (nextInput) {
+                        nextInput.focus(); // Focus the next input field
+                    }else{
+                        addButton.click();
+                    }
+                }
+            });
+
+            $('#vendor').keypress(function (e) { 
+            
+                if (e.which == 13) {
+                    e.preventDefault(); // Prevent the default action (form submission)
+
+                    $('#skuInput').focus(); // Focus the next input field
+                }
+            
+            })
+
+            $('#StockQuantity').keypress(function (e) {
+
+                if (e.which == 13) {
+                    e.preventDefault(); // Prevent the default action (form submission)
+
+                    $('#UnitPrice').focus(); // Focus the next input field
+                }
+
+            })
+            $('#skuInput').keypress(function (e) {
+
+                if (e.which == 13) {
+                    e.preventDefault(); // Prevent the default action (form submission)
+
+                    $('#StockQuantity').focus(); // Focus the next input field
+                }
+
+            })
+
+            
+            $('#skuInput').change(function() {
+               
+                
+                var sku = $('#skuInput').val();
+                var api = "/api/WarehouseProducts/GetWarehouseProductCombination?warehouseId=" + @Model.WarehouseId +"&sku=" + sku
+                $.ajax({
+                    url: api, // Ensure URL is correctly configured
+                    type: 'GET',
+                    success: function (response) {
+                        console.log("Success response:", response);
+                        
+                            $('#skuInput').val(response.Sku);
+                        if (response.StockQuantity === 0 && response.Sku === null) {
+                            $('#StockQuantity').val("");
+                            }else{
+                                $('#StockQuantity').val(response.StockQuantity);
+                            }
+                            
+                            //$('#UnitPrice').val(response.UnitPrice);
+                        if (response.UnitPrice === 0.0 && response.Sku === null) {
+                            $('#UnitPrice').val("");
+                        } else {
+                            $('#UnitPrice').val(response.UnitPrice);
+                        }
+
+                        if (response.AttributesXml === null && response.Sku === null) {
+                            $('#WarehouseProductCombinationAtt').val("");
+                        } else {
+                            $('#WarehouseProductCombinationAtt').val(response.AttributesXml);
+                        }
+
+                        if (response.ProductName === null && response.Sku === null) {
+                            $('#ProductName').val("");
+                        } else {
+                            $('#ProductName').val(response.ProductName);
+                        }
+
+                           // $('#Tax').val(response.Tax);
+                        if (response.Tax === 0.0 && response.Sku === null) {
+                            $('#Tax').val("");
+                        } else {
+                            $('#Tax').val(response.Tax);
+                        }
+                           // $('#Discount').val(response.Discount);
+                        if (response.Discount === 0.0 && response.Sku === null) {
+                            $('#Discount').val("");
+                        } else {
+                            $('#Discount').val(response.Discount);
+                        }
+                            //$('#Profit').val(response.Profit);
+                        if (response.Profit === 0.0 && response.Sku === null) {
+                            $('#Profit').val("");
+                        } else {
+                            $('#Profit').val(response.Profit);
+                        }
+                           // $('#WarehouseProductCombinationId').val(response.WarehouseProductCombinationId);
+                        if (response.WarehouseProductCombinationId === 0 && response.Sku === null) {
+                            $('#WarehouseProductCombinationId').val();
+                        } else {
+                            $('#WarehouseProductCombinationId').val(response.WarehouseProductCombinationId);
+                        }
+                            // Populate form inputs with response.data
+                        //}
+                        
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX error:", error);
+                       // alert("An error occurred: " + error);
+                    }
+                });
+
+                return false;  // Stop the event from propagating further
+                //}
+            });
+
+            
+
+                $('#addProductData').click(function (event) {
+                event.preventDefault();
+                
+
+                var addedStockItem = {
+                        WarehouseProductCombinationId: $('#WarehouseProductCombinationId').val(),
+                        Sku: $('#skuInput').val(),
+                        StockQuantity: parseInt($('#StockQuantity').val(), 10),
+                        UnitPrice: parseFloat($('#UnitPrice').val(), 2),
+                        Tax: parseFloat($('#Tax').val(), 2),
+                        Discount: parseFloat($('#Discount').val(), 2),
+                        Profit: parseFloat($('#Profit').val(), 2)
+                    };
+
+                    // Check if the SKU already exists in the stockItems array
+                    var existingItem = stockItems.find(item => item.Sku === addedStockItem.Sku);
+                    if (existingItem) {
+                        existingItem.StockQuantity += addedStockItem.StockQuantity;
+                    } else {
+                        stockItems.push(addedStockItem);
+                    }
+
+                  
+                    updateTable();
+
+                    // Clear all input fields in the divs under the same parent div as the button
+                $('#productDetailsForm .form-group').find('input[type="text"], input[type="number"]').val('');
+                    $('#productDetailsForm .form-group').find('select').val(''); // If there are select dropdowns
+                });
+
+
+            function addOrUpdateStockItem(item) {
+                var existingItem = stockItems.find(x => x.WarehouseProductCombinationId == item.WarehouseProductCombinationId);
+                if (existingItem) {
+                    if (!areStockItemsIdentical(existingItem, item)) {
+                        alert("Added item causes a conflict with existing items");
+                        existingItem.StockQuantity += item.StockQuantity;
+                    }else{
+                        existingItem.StockQuantity += item.StockQuantity;
+                    }
+                    //existingItem.StockQuantity += item.StockQuantity;
+                } else {
+                    stockItems.push(item);
+                }
+            }
+
+            function areStockItemsIdentical(existingItem, newItem) {
+                return existingItem.UnitPrice === newItem.UnitPrice &&
+                    existingItem.Tax === newItem.Tax &&
+                    existingItem.Discount === newItem.Discount &&
+                    existingItem.Profit === newItem.Profit;
+            }
+
+            function updateTable() {
+                var tbody = $('#stockItemsTable tbody');
+                tbody.empty(); // Clear existing rows
+                console.log("in table" + stockItems);
+                stockItems.forEach(function (item, index) {
+                    var newRow = $(`<tr>
+                                    <td><input disabled type="text" class="form-control sku-input" style="width:100%;" value="${item.Sku}" /></td>
+                            <td><input type="number" class="form-control stock-quantity" value="${item.StockQuantity}" /></td>
+                            <td><input type="number" class="form-control unit-price" value="${item.UnitPrice}" /></td>
+                                    <td><input type="number" class="form-control tax" value="${item.Tax}" /></td>
+                            <td><input type="number" class="form-control discount" value="${item.Discount}" /></td>
+                            <td><input type="number" class="form-control profit" value="${item.Profit}" /></td>
+                                     <td class="d-none"><input type="number" disabled class="form-control WarehouseProductCombinationId" value="${item.WarehouseProductCombinationId}" /></td>
+                             <td class="d-none"><input hidden type="text" class="form-control id-input" value="0" /></td>
+                    <td><button type="button" class="btn btn-danger delete-btn">Delete</button></td>
+                </tr>`);
+                    tbody.append(newRow);
+
+                   
+                });
+            }
+
+
+            function updateItem(index, key, value) {
+                stockItems[index][key] = value;
+            }
+
+
+            function deleteItem(index) {
+                stockItems.splice(index, 1);
+                updateTable();  // Refresh the table
+            }
+
+            $(document).on('click', '.delete-btn', function () {
+                var rowIndex = $(this).closest('tr').index();
+                stockItems.splice(rowIndex, 1);
+                updateTable();  // Refresh the table
+            });
+            });
+
+            
+
+
+
+          
+
+    </script>
+
+
+        
+</div>
