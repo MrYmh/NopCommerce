@@ -6,6 +6,7 @@ using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Warehouses;
 using Nop.Data;
+using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Warehouses.Interface;
 
@@ -17,6 +18,7 @@ namespace Nop.Services.Warehouses
 
         private readonly ILocalizationService _localizationService;
         private readonly IRepository<WarehouseProductCombination> _warehouseProductCombinationRepository;
+        private readonly IRepository<WarehouseItem> _warehouseItemRepository;
         private readonly IStaticCacheManager _staticCacheManager;
 
         #endregion
@@ -26,10 +28,12 @@ namespace Nop.Services.Warehouses
         public WarehouseProductCombinationService(
             ILocalizationService localizationService,
             IRepository<WarehouseProductCombination> warehouseProductCombinationRepository,
-            IStaticCacheManager staticCacheManager)
+            IRepository<WarehouseItem> warehouseItemRepository,
+        IStaticCacheManager staticCacheManager)
         {
             _localizationService = localizationService;
             _warehouseProductCombinationRepository = warehouseProductCombinationRepository;
+            _warehouseItemRepository = warehouseItemRepository;
             _staticCacheManager = staticCacheManager;
         }
 
@@ -178,6 +182,47 @@ namespace Nop.Services.Warehouses
                 });
 
                 return new PagedList<WarehouseProductCombination>(warehouseProductCombinations, pageIndex, pageSize);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets all unprinted serials
+        /// </summary>
+        /// <param name="warehouseId">Warehouse Id</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// </param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the warehouse product combinations
+        /// </returns>
+        public async Task<IList<WarehouseItemGroup>> GetAllUnPrintedSerialsAsync(int warehouseId, int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            try
+            {
+                var unPrintedSerials = await _warehouseItemRepository.GetAllAsync(query =>
+                {
+                    query = query.Where(x => x.WarehouseId == warehouseId && !x.Deleted && x.Printed == true && x.ItemStatus != (int)ItemStatus.Scanned);
+                    
+
+                    return query.OrderBy(x => x.Id);
+                });
+
+                var groupedItems = unPrintedSerials
+           .GroupBy(x => x.Sku)
+           .Select(g => new WarehouseItemGroup
+           {
+               Sku = g.Key,
+               ItemCount = g.Count(),
+               Items = g.ToList()
+           }).ToList();
+
+                return groupedItems;
             }
             catch (Exception ex)
             {

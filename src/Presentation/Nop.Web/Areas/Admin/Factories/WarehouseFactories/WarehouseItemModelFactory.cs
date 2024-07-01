@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs.Models;
 using Nop.Core.Domain.Warehouses;
 using Nop.Services.Warehouses.Interface;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
@@ -68,8 +69,12 @@ namespace Nop.Web.Areas.Admin.Factories.WarehouseFactories
             var warehouseItem = await _warehouseItemService.GetAllWarehouseItemsAsync(
                 warehouseId: searchModel.WarehouseId,
                 pageIndex: searchModel.Page - 1,
-                pageSize: searchModel.PageSize
+                pageSize: searchModel.PageSize,
+                sku : searchModel.Sku ,
+                itemStatus :searchModel.ItemStatus
+
                 );
+            
 
             //prepare grid model
             var model = await new WarehouseItemListModel().PrepareToGridAsync(searchModel, warehouseItem, () =>

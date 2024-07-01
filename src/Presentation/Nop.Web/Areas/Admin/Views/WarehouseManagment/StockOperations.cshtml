@@ -11,18 +11,9 @@
 <div class="container mt-5">
     <div class="row">
 
-        <!-- Receiving Stock Action -->
-        <div class="col-md-4 d-flex">
-            <div class="card text-center flex-fill">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Header")</h5>
-                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Message")</p>
-                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="StockHistory" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Button")</a>
-                </div>
-            </div>
-        </div>
+        
 
-        <!-- Damaging Stock Action -->
+        @* <!-- Damaging Stock Action -->
         <div class="col-md-4 d-flex">
             <div class="card text-center flex-fill">
                 <div class="card-body d-flex flex-column">
@@ -31,21 +22,42 @@
                     <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="DamageStock" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.DamagingStockAction.Button")</a>
                 </div>
             </div>
-        </div>
+        </div> *@
 
         <!-- Print Barcodes -->
+        @* <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.UnPrintedSerials.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.UnPrintedSerials.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseProductCombination" asp-action="UnPrintedSerials" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.UnPrintedSerials.Button")</a>
+                </div>
+            </div>
+        </div> *@
+
+        <!-- Warehouse Product Combinations -->
         <div class="col-md-4 d-flex">
             <div class="card text-center flex-fill">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.PrintBarcodes.Header")</h5>
-                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.PrintBarcodes.Message")</p>
-                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="PrintBarcodes" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.PrintBarcodes.Button")</a>
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.SystemSetup.WarehouseProductCombinations")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.SystemSetup.WarehouseProductCombinationsDesc")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseProductCombination" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.SystemSetup.WarehouseProductCombinationsButton")</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.WarehouseItems.List.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.WarehouseItems.List.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="WarehouseItems" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.WarehouseItems.List.Button")</a>
                 </div>
             </div>
         </div>
 
         <!-- Scan Received Items -->
-        <div class="col-md-4 d-flex">
+        @* <div class="col-md-4 d-flex">
             <div class="card text-center flex-fill">
                 <div class="card-body d-flex flex-column">
                     <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.ScanReceivedItems.Header")</h5>
@@ -53,15 +65,36 @@
                     <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="ScanReceivedItems" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.ScanReceivedItems.Button")</a>
                 </div>
             </div>
+        </div> *@
+
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.ScanItems.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.ScanItems.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="ScanBarcode" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.ScanItems.Button")</a>
+                </div>
+            </div>
         </div>
 
-        <!-- Link Items To Shelf -->
+        @* <!-- Link Items To Shelf -->
         <div class="col-md-4 d-flex">
             <div class="card text-center flex-fill">
                 <div class="card-body d-flex flex-column">
                     <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.LinkItemsToShelf.Header")</h5>
                     <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.LinkItemsToShelf.Message")</p>
                     <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="Stock" asp-action="MapItemToShelf" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.LinkItemsToShelf.Button")</a>
+                </div>
+            </div>
+        </div> *@
+
+        <!-- Receiving Stock Action -->
+        <div class="col-md-4 d-flex">
+            <div class="card text-center flex-fill">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="font-weight-bold mt-3">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Header")</h5>
+                    <p class="card-text flex-grow-1 my-2">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Message")</p>
+                    <a class="btn btn-outline-primary mb-2 mt-auto" asp-controller="StockHistory" asp-action="List" asp-route-warehouseId="@Model">@T("Admin.Warehouses.StockOperations.ReceivingAndReturningAction.Button")</a>
                 </div>
             </div>
         </div>

@@ -19,13 +19,18 @@
         @T("Admin.Warehouses.Stock")
     </h1>
     <div class="float-right">
-        <a asp-controller="Stock" asp-action="CreateReceivingRecord" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
+       @*  <a asp-controller="Stock" asp-action="CreateReceivingRecord" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
             <i class="fas fa-plus-square"></i>
             @T("Admin.Warehouses.Stock.AddNewReceivedStock")
         </a>
         <a asp-action="CreateReturningToVendorRecord" asp-controller="Stock" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
             <i class="fas fa-minus-square"></i>
             @T("Admin.Warehouses.Stock.AddNewReturnToVendor")
+        </a> *@
+
+        <a asp-action="CreateStockProcess" asp-controller="Stock" asp-route-warehouseId="@Model.WarehouseId" class="btn btn-primary">
+            <i class="fas fa-plus-square"></i>
+            @T("Admin.Warehouses.Stock.AddNew")
         </a>
        
 

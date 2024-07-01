@@ -117,13 +117,13 @@ namespace Nop.Core.Domain.Warehouses
     public enum ItemStatus
     {
         Received = 1,
-        Printed,
-        Scanned,
-        Ordered,
-        Expired,
-        ReturnedFromClient,
-        ReturnedToTheVendor,
-        Damaged
+        Printed = 2,
+        Scanned = 3,
+        Ordered = 4,
+        Expired =5,
+        ReturnedFromClient = 6,
+        ReturnedToTheVendor = 7,
+        Damaged = 8
 
     }
 }

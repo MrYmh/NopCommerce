@@ -1,7 +1,7 @@
 ﻿@model int
 @{
     //page title
-    ViewBag.PageTitle = T("Admin.Warehouses.Barcode.ScanReceivedItems").Text;
+    ViewBag.PageTitle = T("Admin.Warehouses.Barcode.ScanBarcode").Text;
     //active menu item (system name)
     NopHtml.SetActiveMenuItemSystemName("Warehouses list");
 }
@@ -97,7 +97,8 @@
                     // Validate the barcode.
                     if (!isValidItemBarcode(itemBarcode)) {
                         if (!isInvalidBarcodeEnteredBefore(itemBarcode)) {
-                            $('#errorsList').append(`<li id="${uniqueId}" class="btn btn-sm btn-danger m-2"  onclick="hideItem('${uniqueId}')">${itemBarcode} <i class="fa fa-exclamation-circle ml-2"></i></li>`);
+                           // $('#errorsList').append(`<li id="${uniqueId}" class="btn btn-sm btn-danger m-2"  onclick="hideItem('${uniqueId}')">${itemBarcode} <i class="fa fa-exclamation-circle ml-2"></i></li>`);
+                           alert('wrong barcode! enter correct one')
                         }
                     }
                     else {

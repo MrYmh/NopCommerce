@@ -128,7 +128,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         {
             foreach (var item in warehouseItems)
             {
-                if (item.Damaged || item.Ordered || item.Deleted)
+                if (item.Damaged || item.Ordered || item.Deleted || !item.Scanned)
                     return true;
             }
             return false;
@@ -469,6 +469,35 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             await _warehouseItemService.UpdateWarehouseItemAsync(warehouseItems);
             return File(pdfBytes, "application/pdf", $"barcodes_{sku}_{quantity}_{DateTime.Now.Ticks}.pdf");
+        }
+
+
+
+        [HttpPost("GetUnprintedBarcodeSelected")]
+        public async Task<dynamic> GetUnprintedBarcodeSelected( [FromBody] IList<int> selectedItems)
+        {
+            var warehouseItems = await _warehouseItemService.GetSelectedWarehouseItemsBarcodesAsync(selectedItems);
+
+            if (!warehouseItems.Any())
+                return NotFound();
+            var sku = warehouseItems.FirstOrDefault().Sku;
+            var combination = await _warehouseProductCombinationService.GetWarehouseProductCombinationByIdAsync(warehouseItems.FirstOrDefault().WarehouseProductCombinationId);
+            var warehouseProduct = await _warehouseProductService.GetWarehouseProductByIdAsync(combination.WarehouseProductId);
+            //change item status to printed
+            foreach (var item in warehouseItems)
+            {
+                item.Printed = true;
+                item.ItemStatus = (int)ItemStatus.Printed;
+                item.UpdatedOnUtc = DateTime.UtcNow;
+            }
+
+            byte[] pdfBytes = _pdfService.GenerateBarcodePdf(warehouseItems, warehouseProduct.Name, combination.AttributesXml);
+
+            if (pdfBytes == null || pdfBytes.Length == 0)
+                return NotFound("PDF could not be generated.");
+
+            await _warehouseItemService.UpdateWarehouseItemAsync(warehouseItems);
+            return File(pdfBytes, "application/pdf", $"barcodes_{sku}_{selectedItems.Count}_{DateTime.Now.Ticks}.pdf");
         }
 
         #endregion

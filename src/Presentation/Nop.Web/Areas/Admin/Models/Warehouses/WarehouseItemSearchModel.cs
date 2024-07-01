@@ -21,6 +21,7 @@ namespace Nop.Web.Areas.Admin.Models.Warehouses
         [NopResourceDisplayName("Admin.Warehouses.WarehouseItem.List.StockItemHistoryId")]
         public int StockItemHistoryId { get; set; }
         public int WarehouseId { get; set; }
+        public string Sku { get; set; }
 
         [NopResourceDisplayName("Admin.Warehouses.WarehouseItem.List.Barcode")]
         public string Barcode { get; set; }

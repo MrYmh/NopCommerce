@@ -1,0 +1,132 @@
+﻿@using Nop.Core.Domain.Warehouses
+@using Nop.Services.Helpers
+@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseStandSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.WarehouseItem.UnPrintedSerials").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.WarehouseItem.UnPrintedSerials")
+    </h1>
+    <div class="float-right">
+       
+       
+        @* @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.SpecificationAttributeListButtons, additionalData = Model }) *@
+        <button type="button" id="delete-selected-specification-attributes" class="btn btn-danger">
+            <i class="far fa-trash-alt"></i>
+            @T("Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Buttons.DeleteSelected")
+        </button>
+        <nop-action-confirmation asp-button-id="delete-selected-specification-attributes" />
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="cards-group">
+            <div class="card card-default">
+                <div class="card-body">
+                  
+                    @if(Model != null)
+                    {
+                        @await Html.PartialAsync("Table", new DataTablesModel
+               {
+                   Name = "specificationattributegroups-grid1",
+                   UrlRead = new DataUrl("UnPrintedSerialsGroup", "WarehouseProductCombination", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                   //PrimaryKeyColumn = nameof(WarehouseItemGroup.Sku),
+                   Length = Model.PageSize,
+                   LengthMenu = Model.AvailablePageSizes,
+                   ColumnCollection = new List<ColumnProperty>
+                    {
+                    new ColumnProperty(null)
+                    {
+                    Render = new RenderChildCaret(),
+                    Width = "5",
+                    Searchable = false,
+                    ClassName =  NopColumnClassDefaults.ChildControl
+                    },
+                    new ColumnProperty(nameof(WarehouseItemGroup.Sku))
+                    {
+                    Title = T("Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Fields.Name").Text,
+                    //Render = new RenderCustom("renderColumnNameSpecificationAttributeGroup")
+                    },
+                    new ColumnProperty(nameof(WarehouseItemGroup.ItemCount))
+                    {
+                    Title = T("Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttributeGroup.Fields.Name").Text,
+                    //Render = new RenderCustom("renderColumnNameSpecificationAttributeGroup")
+                    }
+                    },
+                   ChildTable = new DataTablesModel
+                   {
+                       Name = "specificationattributes-grid-1",
+                       UrlRead = new DataUrl("UnPrintedSerialsItems", "WarehouseProductCombination", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                       IsChildTable = true,
+                       //Length = Model.PageSize,
+                       //LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
+                    {
+                    new FilterParameter(nameof(WarehouseItemGroup.Sku), nameof(WarehouseItemGroup.Sku), true)
+                    },
+                       ColumnCollection = new List<ColumnProperty>
+                    {
+                    new ColumnProperty(nameof(WarehouseItem.Id))
+                    {
+                    IsMasterCheckBox = true,
+                    Render = new RenderCheckBox("checkbox_specificationattributes-1"),
+                    ClassName =  NopColumnClassDefaults.CenterAll,
+                    Width = "50"
+                    },
+                    new ColumnProperty(nameof(WarehouseItem.Barcode))
+                    {
+                    Title = T("Admin.Catalog.Attributes.SpecificationAttributes.SpecificationAttribute.Fields.Name").Text,
+                    Width = "300"
+                    },
+
+
+                    }
+                   }
+               })
+                    }
+
+                    <script>
+                       
+
+                        $(document).ready(function () {
+                            $('#delete-selected-specification-attributes-action-confirmation-submit-button').bind('click', function () {
+                                var postData = {
+                                    selectedIds: selectedIds
+                                };
+                                addAntiForgeryToken(postData);
+                                $.ajax({
+                                    cache: false,
+                                    type: "POST",
+                                    url: "@(Url.Action("DeleteSelectedSpecificationAttributes", "SpecificationAttribute"))",
+                                    data: postData,
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        showAlert('delete-selected-specification-attributes-alert', errorThrown);
+                                    },
+                                    complete: function (jqXHR, textStatus) {
+                                        if (jqXHR.status === 204) {
+                                            showAlert('nothingSelectedAlert', '@T("Admin.Common.Alert.NothingSelected")');
+                                            return;
+                                        }
+                                        updateTable('#specificationattributegroups-grid-1');
+                                    }
+                                });
+                                $('#delete-selected-specification-attributes-action-confirmation').modal('toggle');
+                                return false;
+                            });
+                        });
+                    </script>
+                    <nop-alert asp-alert-id="delete-selected-specification-attributes-alert" />
+                    <nop-alert asp-alert-id="nothingSelectedAlert" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Nop.Core;
 using Nop.Core.Domain.Warehouses;
+using Nop.Services.Helpers;
 
 namespace Nop.Services.Warehouses.Interface
 {
@@ -134,5 +135,6 @@ namespace Nop.Services.Warehouses.Interface
         /// <param name="warehouseProductCombinations">>warehouseProductCombinations</param>
         /// <returns>A task that represents the asynchronous operation</returns>
         Task UpdateWarehouseProductCombinationAsync(IList<WarehouseProductCombination> warehouseProductCombinations);
+        Task<IList<WarehouseItemGroup>> GetAllUnPrintedSerialsAsync(int warehouseId, int pageIndex = 0, int pageSize = int.MaxValue);
     }
 }

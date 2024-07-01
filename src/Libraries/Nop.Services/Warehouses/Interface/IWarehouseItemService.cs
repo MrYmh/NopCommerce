@@ -141,7 +141,7 @@ namespace Nop.Services.Warehouses.Interface
         /// A task that represents the asynchronous operation
         /// The task result contains the warehouse items
         /// </returns>
-        Task<IPagedList<WarehouseItem>> GetAllWarehouseItemsAsync(int warehouseId, int pageIndex = 0, int pageSize = int.MaxValue);
+        Task<IPagedList<WarehouseItem>> GetAllWarehouseItemsAsync(int warehouseId, int pageIndex = 0, int pageSize = int.MaxValue , string sku = null, int itemStatus = 0);
 
         /// <summary>
         /// Get warehouse item by identifiers
@@ -180,5 +180,6 @@ namespace Nop.Services.Warehouses.Interface
         /// <param name="warehouseItems">>Warehouse Items</param>
         /// <returns>A task that represents the asynchronous operation</returns>
         Task UpdateWarehouseItemAsync(IList<WarehouseItem> warehouseItems);
+        Task<IList<WarehouseItem>> GetSelectedWarehouseItemsBarcodesAsync(IList<int> selectedItems);
     }
 }

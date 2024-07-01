@@ -59,6 +59,52 @@ namespace Nop.Web.Areas.Admin.Factories.WarehouseFactories
             }
         }
 
+        ///// <summary>
+        ///// Prepare paged warehouse unprinted serials list model
+        ///// </summary>
+        ///// <param name="searchModel">warehouse unprinted serials search model</param>
+        ///// <returns>
+        ///// A task that represents the asynchronous operation
+        ///// The task result contains the warehouse unprinted serials list model
+        ///// </returns>
+        //public async Task<WarehouseProductCombinationListModel> PrepareUnPrintedSerialsListModelAsync(WarehouseProductCombinationSearchModel searchModel)
+        //{
+        //    try
+        //    {
+        //        if (searchModel == null)
+        //            throw new ArgumentNullException(nameof(searchModel));
+
+        //        //get categories
+        //        var warehouseItems = await _warehouseProductCombinationService.GetAllUnPrintedSerialsAsync(
+        //            warehouseId: searchModel.WarehouseId,
+        //            pageIndex: searchModel.Page - 1,
+        //            pageSize: searchModel.PageSize
+        //            );
+
+
+
+        //        //prepare grid model
+        //        //var model = await new WarehouseItemListModel().PrepareToGridAsync(searchModel, warehouseItems, () =>
+        //        //{
+        //        //    return warehouseItems.SelectAwait(async warehouseProductCombination =>
+        //        //    {
+        //        //        //fill in model values from the entity
+        //        //        var warehouseProductCombinationModel = warehouseProductCombination.ToModel<WarehouseProductCombinationModel>();
+
+        //        //        return warehouseProductCombinationModel;
+        //        //    });
+        //        //});
+
+        //        return model;
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        throw;
+        //    }
+        //}
+
+
         /// <summary>
         /// Prepare paged warehouse product combination list model
         /// </summary>
@@ -102,6 +148,7 @@ namespace Nop.Web.Areas.Admin.Factories.WarehouseFactories
                 throw;
             }
         }
+
 
         /// <summary>
         /// Prepare warehouse product combination model

@@ -402,7 +402,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Product API
 
-        
+
 
         //substituted by jquery code to improve the performance.
         //[HttpGet("GetWarehouseProductCombination/{warehouseId}/{sku}")]
@@ -439,6 +439,31 @@ namespace Nop.Web.Areas.Admin.Controllers
         #endregion
 
         #region Stock Processes
+
+        public async Task<IActionResult> CreateStockProcess(int warehouseId)
+        {
+            if (warehouseId <= 0)
+                return AccessDeniedView();
+
+            //TODO: ADD LOGIC TO VALIDATE IF THE USER IS ALLOWED TO ENTER THIS SPECIFIC WAREHOUSE
+            //var currentUser = await _workContext.GetCurrentCustomerAsync();
+            //if (!IsUserAllowedToAccessWarehouse(warehouseId, currentUser.Id))
+            //    return AccessDeniedView();
+
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageCategories))
+                return AccessDeniedView();
+
+            var model = new StockHistoryModel()
+            {
+                WarehouseId = warehouseId,
+                //TypeOfProcess = StockProcess.Receiving
+            };
+
+            //prepare model
+            var preparedModel = await _stockHistoryModelFactory.PrepareStockHistoryModelAsync(model, null);
+
+            return View(preparedModel);
+        }
 
         #region Receiving Stock
 
@@ -712,6 +737,25 @@ namespace Nop.Web.Areas.Admin.Controllers
         #endregion
 
         #region Stock Requests
+
+        public async Task<IActionResult> CreateStockRequestRecord(int warehouseId)
+        {
+
+
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageCategories))
+                return AccessDeniedView();
+
+            var model = new StockRequestModel()
+            {
+                WarehouseId = warehouseId,
+                //TypeOfProcess = StockProcess.Receiving
+            };
+
+            //prepare model
+            var preparedModel = await _stockRequestModelFactory.PrepareStockRequestModelAsync(model, null);
+
+            return View(preparedModel);
+        }
 
         #region Stock Receiving Request
 
@@ -1052,6 +1096,12 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Barcodes
 
+        [HttpGet]
+        public async Task<ActionResult> ScanBarcode(int warehouseId)
+        {
+            return View(warehouseId);
+        }
+
         #region Receiving Stock Barcode APIs
 
         [HttpGet]
@@ -1073,20 +1123,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         
 
-        //public async Task<ActionResult<bool>> CheckReturnedToVendorBarcodeValidity( int stockItemHistoryId, string itemBarcode)
-        //{
-        //    if (IsBarcodeAlreadyOrdered(warehouseItem))
-        //    {
-        //        _notificationService.ErrorNotification(string.Format(await _localizationService.GetResourceAsync("Admin.Warehouses.Barcode.CannotReturnOrderedItem"), itemBarcode));
-        //        return false;
-        //    }
-        //    if (IsBarcodeAlreadyReturnedToVendorBefore(warehouseItem))
-        //    {
-        //        _notificationService.ErrorNotification(string.Format(await _localizationService.GetResourceAsync("Admin.Warehouses.Barcode.ItemAlreadyReturnedToVendor"), itemBarcode));
-        //        return false;
-        //    }
-        //    return true;
-        //}
+        
 
         #endregion
 

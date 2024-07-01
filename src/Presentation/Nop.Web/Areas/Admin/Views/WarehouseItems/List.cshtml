@@ -1,0 +1,334 @@
+﻿@using Nop.Web.Areas.Admin.Models.Warehouses
+@model WarehouseItemSearchModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Warehouses.WarehouseItem.List").Text;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName("Warehouses list");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "WarehouseItemPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+@await Component.InvokeAsync("WarehouseNavbar", new { id = Model.WarehouseId })
+
+<div class="content-header clearfix">
+    <h1 class="float-left">
+        @T("Admin.Warehouses.WarehouseItem.List")
+    </h1>
+</div>
+<div class="content-header clearfix">
+    @* <div class="float-left">
+    <a asp-controller="WarehouseManagment" asp-action="List" asp-route-id="@Model.WarehouseId" class="btn btn-outline-primary">
+    <i class="fas fa-arrow-circle-left"></i>
+    @T("Warehouse.Home")
+    </a>
+    </div> *@
+    <div class="float-right">
+      
+        <button type="button" id="print-barcode" class="btn btn-primary">
+            @* <i class="far fa-trash-alt"></i> *@
+            @T("Admin.Common.Print.Selected")
+        </button>
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.WarehouseItemListButtons, additionalData = Model })
+        <button type="button" id="delete-selected" class="btn btn-danger">
+            <i class="far fa-trash-alt"></i>
+            @T("Admin.Common.Delete.Selected")
+        </button>
+        
+        <nop-action-confirmation asp-button-id="delete-selected" />
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <div class="row ">
+                                <div class="col-md-8">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="Sku" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="Sku" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="ItemStatus" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            @* <nop-editor asp-for="TypeOfProcess" /> *@
+                                            <select asp-for="ItemStatus" class="form-control">
+                                                <option selected value=0>@T("Admin.Warehouses.WarehouseItem.Values.All")</option>
+                                                <option value=1>@T("Admin.Warehouses.WarehouseItem.Values.Received")</option>
+                                                <option value=2>@T("Admin.Warehouses.WarehouseItem.Values.Printed")</option>
+                                                <option value=3>@T("Admin.Warehouses.WarehouseItem.Values.Scanned")</option>
+                                                <option value=4>@T("Admin.Warehouses.WarehouseItem.Values.Ordered")</option>
+                                                <option value=7>@T("Admin.Warehouses.WarehouseItem.Values.ReturnedToTheVendor")</option>
+                                                <option value=8>@T("Admin.Warehouses.WarehouseItem.Values.Damaged")</option>
+                                               
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                               
+
+                                
+                                
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="text-center col-12">
+                                    @* asp-route-warehouseId="Model.WarehouseId" *@
+                                    <button asp-route-warehouseId="Model.WarehouseId" type="button" id="search-WarehouseItems" class="btn btn-primary btn-search"><i class="fas fa-search"></i>@T("Admin.Common.Search")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+
+
+
+
+
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                   {
+                       Name = "WarehouseItem-grid",
+                       UrlRead = new DataUrl("List", "WarehouseItems", new RouteValueDictionary { { "warehouseId", Model.WarehouseId } }),
+                       SearchButtonId = "search-WarehouseItems",
+                       Length = Model.PageSize,
+                       LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
+                        {
+                        new FilterParameter(nameof(WarehouseItemSearchModel.Sku)),
+                        new FilterParameter(nameof(WarehouseItemSearchModel.ItemStatus)),
+                        // new FilterParameter(nameof(WarehouseItemSearchModel.Printed)),
+                        // new FilterParameter(nameof(WarehouseItemSearchModel.Scanned)),
+                        // new FilterParameter(nameof(WarehouseItemSearchModel.Ordered)),
+                        },
+                       ColumnCollection = new List<ColumnProperty>
+                        {
+                        new ColumnProperty(nameof(WarehouseItemModel.Id))
+                        {
+                        IsMasterCheckBox = true,
+                        Render = new RenderCheckBox("checkbox_WarehouseItem"),
+                        ClassName =  NopColumnClassDefaults.CenterAll,
+                        Width = "50"
+                        },
+                        new ColumnProperty(nameof(WarehouseItemModel.Id))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseItem.Fields.ItemNo").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(WarehouseItemModel.Barcode))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseItem.Fields.Barcode").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(WarehouseItemModel.Sku))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseItem.Fields.Sku").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                       
+                        
+                       
+                        }
+                   })
+
+                        <script>
+
+                            function collectCheckedItems() {
+                                selectedItems = [];
+                                selectedSku = null;
+                                count = 0;
+
+                                $('#WarehouseItem-grid').find('input[type="checkbox"]:checked').each(function () {
+                                    var row = $(this).closest('tr');
+                                    var id = parseInt($(this).val(), 10);
+                                    var sku = row.find('td').eq(3).text(); // Assuming SKU is in the fourth column
+
+                                    if (count == 0) {
+                                        selectedSku = sku;
+                                        selectedItems.push(id);
+                                        count += 1;
+                                    } else {
+                                        if (sku == selectedSku) {
+                                            selectedItems.push(id);
+                                            count += 1;
+                                        } else {
+                                            $(this).prop('checked', false);
+                                            alert('skuMismatchAlert', '@T("Admin.Common.Alert.SkuMismatch")');
+                                        }
+                                    }
+                                });
+
+                                // Debugging
+                                console.log("Collected Selected Items:", selectedItems);
+                                console.log("Collected Selected SKU:", selectedSku);
+                            }
+                            $(document).ready(function () {
+                                var count = 0;
+                                var selectedItems = [];
+                                var selectedSku = null;
+
+                                // Function to collect checked items
+                                
+
+                                $('#WarehouseItem-grid').on('change', 'input[type="checkbox"]', function () {
+                                    var row = $(this).closest('tr');
+                                    var id = parseInt($(this).val(), 10);
+                                    var sku = row.find('td').eq(3).text(); // Assuming SKU is in the fourth column
+
+                                    if ($(this).is(':checked')) {
+                                        if (selectedItems.length == 0) {
+                                            selectedSku = sku;
+                                            selectedItems.push(id);
+                                            count += 1;
+                                        } else {
+                                            if (sku == selectedSku) {
+                                                selectedItems.push(id);
+                                                count += 1;
+                                            } else {
+                                                $(this).prop('checked', false);
+                                                alert('skuMismatchAlert', '@T("Admin.Common.Alert.SkuMismatch")');
+                                            }
+                                        }
+                                    } else {
+                                        selectedItems = selectedItems.filter(function (itemId) {
+                                            return itemId !== id;
+                                        });
+
+                                        count -= 1;
+                                        if (selectedItems.length == 0) {
+                                            selectedSku = null;
+                                        }
+                                    }
+
+                                    // Debugging
+                                    console.log("Selected Items:", selectedItems);
+                                    console.log("Selected SKU:", selectedSku);
+                                });
+
+                                $('#print-barcode').click(function () {
+                                    // Collect checked items before proceeding
+                                    collectCheckedItems();
+
+                                    if (count == 0) {
+                                        alert('nothingSelectedAlert', '@T("Admin.Common.Alert.NothingSelected")');
+                                        return;
+                                    }
+
+                                    var sku = selectedSku;
+                                    var warehouseId = @Model.WarehouseId;
+                                    var apiUrl = `/api/StockAction/GetUnprintedBarcodeSelected`;
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: apiUrl,
+                                        data: JSON.stringify(selectedItems),
+                                        contentType: 'application/json',
+                                        xhrFields: {
+                                            responseType: 'blob'  // Important for handling binary data
+                                        },
+                                        success: function (data) {
+                                            // Create a Blob from the PDF data
+                                            var blob = new Blob([data], { type: 'application/pdf' });
+
+                                            // Generate a URL for the Blob
+                                            var pdfUrl = URL.createObjectURL(blob);
+
+                                            // Create and open a new window for the PDF
+                                            var pdfWindow = window.open("");
+                                            pdfWindow.document.write(
+                                                '<html><head><title>Barcodes PDF</title></head><body style="margin:0; height:100%;">' +
+                                                '<iframe src="' + pdfUrl + '" style="width:100%; height:100%; border:none;"></iframe>' +
+                                                '</body></html>'
+                                            );
+
+                                            pdfWindow.document.close();
+
+                                            // Clean up the Blob URL after the window is closed
+                                            pdfWindow.onbeforeunload = function () {
+                                                URL.revokeObjectURL(pdfUrl);
+                                            };
+
+                                            // Uncheck all checkboxes and reset variables
+                                            $('#WarehouseItem-grid').find('input[type="checkbox"]').prop('checked', false);
+                                            selectedItems = [];
+                                            count = 0;
+                                            selectedSku = null;
+                                        },
+                                        error: function (xhr, status, error) {
+                                            // Handle errors here
+                                            console.log('Error while generating the pdf:', xhr.status, xhr.responseText);
+                                        }
+                                    });
+                                });
+
+                                $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                                    var postData = {
+                                        selectedIds: selectedItems
+                                    };
+                                    addAntiForgeryToken(postData);
+
+                                    var url = "@(Url.Action("DeleteSelected", "WarehouseItem"))";
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        url: url,
+                                        data: postData,
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            showAlert('deleteSelectedFailed', errorThrown);
+                                        },
+                                        complete: function (jqXHR, textStatus) {
+                                            if (jqXHR.status === 204) {
+                                                showAlert('nothingSelectedAlert', '@T("Admin.Common.Alert.NothingSelected")');
+                                                return;
+                                            }
+                                            updateTable('#WarehouseItem-grid');
+                                        }
+                                    });
+                                    $('#delete-selected-action-confirmation').modal('toggle');
+                                    return false;
+                                });
+                            });
+
+                            function renderActiveStatus(data, type, row) {
+                                return data ? '@T("Admin.Warehouses.WarehouseItem.Values.Active")' : '@T("Admin.Warehouses.WarehouseItem.Values.Inactive")';
+                            }
+                        </script>
+
+                        
+                        
+                        <nop-alert asp-alert-id="deleteSelectedFailed" />
+                        <nop-alert asp-alert-id="nothingSelectedAlert" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+

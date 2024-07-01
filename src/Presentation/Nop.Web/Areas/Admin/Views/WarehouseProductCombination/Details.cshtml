@@ -1,0 +1,33 @@
+﻿@using Nop.Core.Domain.Warehouses
+@model IList<WarehouseItem>
+
+<h2>Items for SKU: @Model.FirstOrDefault()?.Sku</h2>
+
+<form id="printForm">
+    <table>
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Item ID</th>
+                <th>Barcode</th>
+                <th>Status</th>
+                <th>Printed</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selectedItems" value="@item.Id" />
+                    </td>
+                    <td>@item.Id</td>
+                    <td>@item.Barcode</td>
+                    <td>@item.ItemStatus</td>
+                    <td>@item.Printed</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit">Print Selected Items</button>
+</form>

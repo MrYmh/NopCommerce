@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
+using DocumentFormat.OpenXml.EMMA;
 using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Warehouses;
 using Nop.Services.Catalog;
+using Nop.Services.Common;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Messages;
@@ -19,6 +23,7 @@ using Nop.Services.Warehouses.Interface;
 using Nop.Web.Areas.Admin.Factories.WarehouseFactories;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
 using Nop.Web.Areas.Admin.Models.Warehouses;
+using Nop.Web.Framework.Security;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
@@ -45,7 +50,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IProductAttributeParser _productAttributeParser;
         private readonly IWarehouseProductCombinationService _warehouseProductCombinationService;
         private readonly IStockHistoryModelFactory _stockHistoryModelFactory;
-
+        private readonly IPdfService _pdfService;
         private readonly IStockItemHistoryMappingService _stockItemHistoryMappingService;
 
 
@@ -53,7 +58,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             IWarehouseProductService wps , 
             IWarehouseProductCategoryMappingService wpcms,
             IProductService ps,
-            IWorkContext workContext,
+            IPdfService pdfService,
+        IWorkContext workContext,
         IPermissionService permissionService,
         IAcceptStockRequestService acceptStockRequestService,
         IStockRequestService stockRequestService,
@@ -71,6 +77,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         IStockHistoryModelFactory stockHistoryModelFactory)
 
         {
+            _pdfService = pdfService;
             _warehouseProductService = wps;
             _warehouseProductCategoryMappingService = wpcms;
             _productService = ps;
@@ -93,6 +100,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
 
+        #region utilities
         private async Task<IList<WarehouseProductCombination>> PrepareWarehouseProductCombinations(IList<ProductAttributeCombination> productAttributeCombinations, WarehouseProduct warehouseProduct, Customer currentUser)
         {
             return await productAttributeCombinations.SelectAwait(async x => new WarehouseProductCombination
@@ -124,13 +132,95 @@ namespace Nop.Web.Areas.Admin.Controllers
                         stockItemHistoriesForBulkInsert.Add(stockItem.ToEntity<StockItemHistory>());
                     }
 
-                    //to be removed 
-                    var exx = stockItemHistoriesForBulkInsert;
-                    //Console.WriteLine(exx);
+               
                     await _stockItemHistoryService.InsertStockItemHistoryAsync(stockItemHistoriesForBulkInsert);
 
                     //Warehouse Items
                     await PrepareAndInsertWarehouseItems(stockItemHistoriesForBulkInsert, stockHistory.WarehouseId);
+                    foreach (var stockItemHistory in stockItemHistoriesForBulkInsert)
+                    {
+                        //activity log
+                        await _customerActivityService.InsertActivityAsync("AddNewStockItemHistory",
+                            string.Format(await _localizationService.GetResourceAsync("ActivityLog.AddNewStockItemHistory"), stockItemHistory.Id), stockItemHistory);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        //it will be used
+        private async Task PrepareAndInsertReceivedStockItemHistory(int warehouseId , string combSku , StockItemHistoryModel stockItem, int currentUserId)
+        {
+            try
+            {
+                //get comb by sku
+                //put values of comb in stock item model 
+                //get product 
+                //put product data in stock item model 
+                var warehouseProductCombination = await _warehouseProductCombinationService.GetWarehouseProductCombinationBySkuAsync(warehouseId, combSku);
+                if (warehouseProductCombination != null)
+                {
+                    var warehouseProduct = await _warehouseProductService.GetWarehouseProductByIdAsync(warehouseProductCombination.WarehouseProductId);
+                    if (warehouseProduct != null)
+                    {
+
+                        var result = warehouseProductCombination.ToModel<WarehouseProductCombinationModel>();
+                        result.WarehouseProduct = warehouseProduct.ToModel<WarehouseProductModel>();
+
+                        var product = await _productService.GetProductByIdAsync(warehouseProduct.ProductId);
+
+
+
+                        if (result != null && product != null)
+                        {
+                            stockItem.WarehouseId = warehouseId;
+                            stockItem.Sku = result.Sku;
+                            stockItem.AttributesXml = result.AttributesXml;
+                            stockItem.WarehouseProductCombinationId = warehouseProductCombination.Id;
+                            stockItem.ProductName = result.WarehouseProduct.Name;
+                            stockItem.UnitPrice = product.Price;
+                            stockItem.Tax = 0;
+                            stockItem.Discount = 0;
+                            stockItem.Profit = 0;
+                            //stockItem.StockQuantity = 0;
+                        }
+                        else
+                        {
+                            stockItem.WarehouseId = warehouseId;
+                            stockItem.Sku = "";
+                            stockItem.AttributesXml = "";
+                            //response.WarehouseProductCombinationId = null;
+                            stockItem.ProductName = "";
+                            //response.UnitPrice = null;
+                            //response.Tax = ;
+                            // response.Discount = 0;
+                            //response.Profit = 0;
+                            //response.StockQuantity = 0;
+                        }
+
+                    }
+                       
+
+                }
+                    if (stockItem != null)
+                {
+                    var stockItemHistoriesForBulkInsert = new List<StockItemHistory>();
+                    
+                        //stockItem.StockHistoryId = stockHistory.Id;
+                        stockItem.CreatedOnUtc = DateTime.UtcNow;
+                        stockItem.CreatedBy = currentUserId;
+                        stockItemHistoriesForBulkInsert.Add(stockItem.ToEntity<StockItemHistory>());
+                    
+
+                    
+                    await _stockItemHistoryService.InsertStockItemHistoryAsync(stockItemHistoriesForBulkInsert);
+
+                    //Warehouse Items
+                    await PrepareAndInsertWarehouseItems(stockItemHistoriesForBulkInsert, stockItem.WarehouseId);
                     foreach (var stockItemHistory in stockItemHistoriesForBulkInsert)
                     {
                         //activity log
@@ -366,6 +456,19 @@ namespace Nop.Web.Areas.Admin.Controllers
             warehouseProduct.ShortDescription = product.ShortDescription;
             warehouseProduct.UpdatedOnUtc = DateTime.UtcNow;
         }
+
+        private async Task RefreshWarehouseProductCombinationsData(IEnumerable<WarehouseProductCombination> warehouseProductCombinations, IEnumerable<ProductAttributeCombination> productAttributeCombinations)
+        {
+            foreach (var warehouseProductCombination in warehouseProductCombinations)
+            {
+                var productAttributeCombination = productAttributeCombinations.FirstOrDefault(x => x.Id == warehouseProductCombination.CombinationId);
+                if (productAttributeCombination != null)
+                {
+                    warehouseProductCombination.AttributesXml = await _productAttributeParser.ConvertAttributesToString(productAttributeCombination.AttributesXml);
+                    warehouseProductCombination.Sku = productAttributeCombination.Sku;
+                }
+            }
+        }
         private async Task PrepareAndInsertWarehouseItems(StockItemHistory stockItemHistory, int warehouseId, int quantity)
         {
             var warehouseItems = PrepareWarehouseItemsForCreation(stockItemHistory, warehouseId, quantity);
@@ -392,8 +495,9 @@ namespace Nop.Web.Areas.Admin.Controllers
             }).ToList();
             await _stockItemHistoryMappingService.InsertStockItemHistoryMappingAsync(mappedStockItemHistories);
         }
+        #endregion
 
-
+        #region apis
         [HttpGet("GetProductsByCategoryMappingId")]
         public async Task<List<WarehouseProductDto>> GetProductsByCategoryMappingId([FromQuery]int warehouseCategoryMappingId)
         {
@@ -536,19 +640,7 @@ namespace Nop.Web.Areas.Admin.Controllers
              */
         }
 
-        private async Task RefreshWarehouseProductCombinationsData(IEnumerable<WarehouseProductCombination> warehouseProductCombinations, IEnumerable<ProductAttributeCombination> productAttributeCombinations)
-        {
-            foreach (var warehouseProductCombination in warehouseProductCombinations)
-            {
-                var productAttributeCombination = productAttributeCombinations.FirstOrDefault(x => x.Id == warehouseProductCombination.CombinationId);
-                if (productAttributeCombination != null)
-                {
-                    warehouseProductCombination.AttributesXml = await _productAttributeParser.ConvertAttributesToString(productAttributeCombination.AttributesXml);
-                    warehouseProductCombination.Sku = productAttributeCombination.Sku;
-                }
-            }
-        }
-
+       
 
         [HttpGet("GetWarehouseProductCombination")]
         public async Task<ActionResult<StockItemHistoryModel>> GetWarehouseProductCombination(int warehouseId, string sku)
@@ -614,6 +706,58 @@ namespace Nop.Web.Areas.Admin.Controllers
 
                 throw;
             }
+        }
+
+
+        //api will be used
+        [HttpPost("GetUnprintedBarcodes")]
+        public async Task<dynamic> GetUnprintedBarcodes( int warehouseId,  string sku, string quantity)
+        {
+            var currentUser = await _workContext.GetCurrentCustomerAsync();
+
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageCategories))
+                return StatusCode(403, new { message = "Access Denied" });
+
+            //Prepare stockitem model object
+            var stockItem = new StockItemHistoryModel();
+            var amount = int.TryParse(quantity, out int result) ? result : 0;
+            stockItem.StockQuantity = amount;
+
+            await PrepareAndInsertReceivedStockItemHistory(warehouseId, sku, stockItem, currentUser.Id);
+            
+            var warehouseItems = await _warehouseItemService.GetUnPrintedWarehouseItemsBarcodesAsync(warehouseId, (string)sku, amount);
+
+            if (!warehouseItems.Any())
+                return NotFound();
+
+            var combination = await _warehouseProductCombinationService.GetWarehouseProductCombinationByIdAsync(warehouseItems.FirstOrDefault().WarehouseProductCombinationId);
+            var warehouseProduct = await _warehouseProductService.GetWarehouseProductByIdAsync(combination.WarehouseProductId);
+
+            byte[] pdfBytes;
+
+            try
+            {
+                pdfBytes = _pdfService.GenerateBarcodePdf(warehouseItems, warehouseProduct.Name, combination.AttributesXml);
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+
+            if (pdfBytes == null || pdfBytes.Length == 0)
+                return NotFound("PDF could not be generated.");
+
+            //Change item status to printed
+            foreach (var item in warehouseItems)
+            {
+                item.Printed = true;
+                item.ItemStatus = (int)ItemStatus.Printed;
+                item.UpdatedOnUtc = DateTime.UtcNow;
+            }
+
+            await _warehouseItemService.UpdateWarehouseItemAsync(warehouseItems);
+            return File(pdfBytes, "application/pdf", $"barcodes_{sku}_{amount}_{DateTime.Now.Ticks}.pdf");
         }
 
 
@@ -1125,8 +1269,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        #endregion
 
-        
 
 
     }

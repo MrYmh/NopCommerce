@@ -1102,6 +1102,225 @@ namespace Nop.Data.Migrations.WarehouseMigrations
             Insert.IntoTable(nameof(LocaleStringResource)).Row(new
             {
                 LanguageId = 1,
+                ResourceName = "admin.warehouses.stockoperations.scanitems.header".ToLower(),
+                ResourceValue = "Scan Warehouse Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "admin.warehouses.stockoperations.scanitems.header".ToLower(),
+                ResourceValue = "قراءة منتجات المخزن"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "admin.warehouses.stockoperations.scanitems.message".ToLower(),
+                ResourceValue = "allows you to scan items into the warehouse inventory."
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "admin.warehouses.stockoperations.scanitems.message".ToLower(),
+                ResourceValue = "السماح بقراءة المنتجات الخاصة بالمخزن."
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "admin.warehouses.stockoperations.scanitems.button".ToLower(),
+                ResourceValue = "Scan Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "admin.warehouses.stockoperations.scanitems.button".ToLower(),
+                ResourceValue = "قراءة المنتجات"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItems.List.Header".ToLower(),
+                ResourceValue = "Warehouse Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItems.List.Header".ToLower(),
+                ResourceValue = "التحكم فى منتجات المخزن"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItems.List.Message".ToLower(),
+                ResourceValue = "allows you to print barcodes for unScanned warehouse items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItems.List.Message".ToLower(),
+                ResourceValue = "السماح بطباعة الباركود الخاص بعناصر المنتجات الخاصة بالمخزن."
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItems.List.Button".ToLower(),
+                ResourceValue = "Manage Warehouse Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItems.List.Button".ToLower(),
+                ResourceValue = " التحكم فى عناصر المنتجات الخاصة بالمخزن"
+            });
+
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.list".ToLower(),
+                ResourceValue = "Warehouse Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.list".ToLower(),
+                ResourceValue = " عناصر المنتجات الخاصة بالمخزن"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Common.Print.Selected".ToLower(),
+                ResourceValue = "Print(Selected)"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Common.Print.Selected".ToLower(),
+                ResourceValue = " طباعة المختار"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.All".ToLower(),
+                ResourceValue = "Select All"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.All".ToLower(),
+                ResourceValue = " اختار الكل"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Received".ToLower(),
+                ResourceValue = "Received Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Received".ToLower(),
+                ResourceValue = "المنتجات المستلمة"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Printed".ToLower(),
+                ResourceValue = "Printed Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Printed".ToLower(),
+                ResourceValue = "المنتجات المطبوعة"
+            });
+
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Scanned".ToLower(),
+                ResourceValue = "Scanned Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Scanned".ToLower(),
+                ResourceValue = "المنتجات المقروءة"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Ordered".ToLower(),
+                ResourceValue = "Ordered Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Ordered".ToLower(),
+                ResourceValue = "المنتجات تحت الطلب"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.ReturnedToTheVendor".ToLower(),
+                ResourceValue = "ReturnedToTheVendor Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.ReturnedToTheVendor".ToLower(),
+                ResourceValue = "المنتجات المرتجعة للمورد"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Damaged".ToLower(),
+                ResourceValue = "Damaged Items"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Values.Damaged".ToLower(),
+                ResourceValue = "المنتجات التالفة"
+            });
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Fields.ItemNo".ToLower(),
+                ResourceValue = "Item Number"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.WarehouseItem.Fields.ItemNo".ToLower(),
+                ResourceValue = " رقم العنصر"
+            });
+
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
                 ResourceName = "Admin.Warehouses.StockOperations.LinkItemsToShelf.Header".ToLower(),
                 ResourceValue = "Link Items To Shelf"
             });
@@ -1848,6 +2067,34 @@ namespace Nop.Data.Migrations.WarehouseMigrations
                 LanguageId = 2,
                 ResourceName = "Admin.Warehouses.Barcode.LinkedItemBarcode".ToLower(),
                 ResourceValue = "كود المنتج"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.Barcode.ScanBarcode".ToLower(),
+                ResourceValue = "Scan Barcodes"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.Barcode.ScanBarcode".ToLower(),
+                ResourceValue = "قراءة الأكواد"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 1,
+                ResourceName = "Admin.Warehouses.Barcode.SelectOne".ToLower(),
+                ResourceValue = "Select desired type"
+            });
+
+            Insert.IntoTable(nameof(LocaleStringResource)).Row(new
+            {
+                LanguageId = 2,
+                ResourceName = "Admin.Warehouses.Barcode.SelectOne".ToLower(),
+                ResourceValue = "أختر نوع القراءة"
             });
 
             Insert.IntoTable(nameof(LocaleStringResource)).Row(new

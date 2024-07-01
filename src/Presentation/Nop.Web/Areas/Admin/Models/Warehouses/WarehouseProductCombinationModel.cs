@@ -71,9 +71,11 @@ namespace Nop.Web.Areas.Admin.Models.Warehouses
         #endregion
     }
 
+    
+
     public record WarehouseProductCombinationLocalizedModel : ILocalizedLocaleModel
     {
         public int LanguageId { get; set; }
     }
-
+   
 }

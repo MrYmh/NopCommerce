@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs.Models;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Shipping;
@@ -207,12 +208,28 @@ namespace Nop.Services.Warehouses
             return await _warehouseItemRepository.GetAllAsync(
                 query =>
                 {
-                    query = query.Where(i => i.WarehouseId == warehouseId && i.Sku.Equals(sku) && !i.Deleted && i.ItemStatus == (int)ItemStatus.Received);
+                    query = query.Where(i => i.WarehouseId == warehouseId && i.Sku.Equals(sku) && !i.Deleted && i.Barcode != null && i.ItemStatus == (int)ItemStatus.Received);
                     if (quantity <= 0)
                         return query.Take(0);
 
                     return query.Take(quantity);
                 });
+        }
+
+        /// <summary>
+        /// Get unprinted warehouse Items
+        /// </summary>
+        /// <param name="warehouseId">warehouseId</param>
+        /// <param name="sku">sku</param>
+        /// <param name="selectedIems">items that user select to print</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the Unprinted Warehouse Items
+        /// </returns>
+        public async Task<IList<WarehouseItem>> GetSelectedWarehouseItemsBarcodesAsync(IList<int> selectedItems)
+        {
+            
+                return await _warehouseItemRepository.GetByIdsAsync(selectedItems);
         }
 
         /// <summary>
@@ -313,15 +330,22 @@ namespace Nop.Services.Warehouses
         /// A task that represents the asynchronous operation
         /// The task result contains the warehouse items
         /// </returns>
-        public async Task<IPagedList<WarehouseItem>> GetAllWarehouseItemsAsync(int warehouseId, int pageIndex = 0, int pageSize = int.MaxValue)
+        public async Task<IPagedList<WarehouseItem>> GetAllWarehouseItemsAsync(int warehouseId, int pageIndex = 0, int pageSize = int.MaxValue , string sku = null , int itemStatus = 0)
         {
 
             var warehouseItems = await _warehouseItemRepository.GetAllAsync(query =>
             {
                 query = query.Where(x => x.WarehouseId == warehouseId && !x.Deleted);
+                if(sku != null)
+                {
+                    query = query.Where(x => x.Sku == sku);
+                }
+                if (itemStatus != 0)
+                {
+                    query = query.Where(x => x.ItemStatus == itemStatus);
+                }
 
-
-                return query.OrderBy(c => c.Id);
+                return query.OrderBy(c => c.Sku).ThenBy(c=>c.Id);
             });
 
             //paging

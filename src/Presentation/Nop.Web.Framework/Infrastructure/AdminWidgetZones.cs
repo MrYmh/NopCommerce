@@ -39,6 +39,7 @@
         public static string WarehouseProductListButtons => "admin_WarehouseProduct_list_buttons";
         public static string StockHistoryListButtons => "admin_StockHistory_list_buttons";
         public static string StockListButtons => "admin_Stock_list_buttons";
+        public static string WarehouseItemListButtons => "admin_Warehouse_Item_List_buttons";
         public static string WarehouseProductCategoryMappingListButtons => "admin_WarehouseProductCategoryMapping_list_buttons";
         public static string WarehouseProductCombinationListButtons => "admin_WarehouseProductCombinationListButtons_list_buttons";
 

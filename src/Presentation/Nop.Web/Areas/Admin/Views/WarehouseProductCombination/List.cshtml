@@ -21,19 +21,9 @@
     </h1>
 </div>
 <div class="content-header clearfix">
-   @*  <div class="float-left">
-         <a asp-controller="WarehouseManagment" asp-action="List" asp-route-id="@Model.WarehouseId" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-circle-left"></i>
-            @T("Warehouse.Home")
-        </a> 
-    </div> *@
+    
     <div class="float-right">
         @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.WarehouseProductCombinationListButtons, additionalData = Model })
-        @* <button type="button" id="delete-selected" class="btn btn-danger">
-            <i class="far fa-trash-alt"></i>
-            @T("Admin.Common.Delete.Selected")
-        </button> *@
-        @* <nop-action-confirmation asp-button-id="delete-selected" /> *@
     </div>
 </div>
 
@@ -83,45 +73,86 @@
                        LengthMenu = Model.AvailablePageSizes,
                        Filters = new List<FilterParameter>
                         {
-                            new FilterParameter(nameof(Model.Sku))
+                        new FilterParameter(nameof(Model.Sku))
                         },
                        ColumnCollection = new List<ColumnProperty>
                         {
-                            new ColumnProperty(nameof(WarehouseProductCombinationModel.Sku))
-                            {
-                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.Sku").Text,
-                                ClassName =  NopColumnClassDefaults.CenterAll
-                            },
-                            new ColumnProperty(nameof(WarehouseProductCombinationModel.AttributesXml))
-                            {
-                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.AttributesXml").Text,
-                                ClassName =  NopColumnClassDefaults.CenterAll,
-                                Render = new RenderCustom("renderProductAttributesCombinationsColumnAttributesXml")
-                            },
-                            new ColumnProperty(nameof(WarehouseProductCombinationModel.TotalQuantity))
-                            {
-                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.TotalQuantity").Text,
-                                ClassName =  NopColumnClassDefaults.CenterAll
-                            },
-                            new ColumnProperty(nameof(WarehouseProductCombinationModel.DamagedQuantity))
-                            {
-                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.DamagedQuantity").Text,
-                                ClassName =  NopColumnClassDefaults.CenterAll
-                            },
-                            new ColumnProperty(nameof(WarehouseProductCombinationModel.ReturnedToVendorQuantity))
-                            {
-                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.ReturnedToVendorQuantity").Text,
-                                ClassName =  NopColumnClassDefaults.CenterAll
-                            },
-                            new ColumnProperty(nameof(WarehouseProductCombinationModel.Available))
-                            {
-                                Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.Available").Text,
-                                ClassName =  NopColumnClassDefaults.CenterAll,
-                                Render = new RenderCustom("renderAvailabilityStatus")
-                            }
+                        new ColumnProperty(nameof(WarehouseProductCombinationModel.Sku))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.Sku").Text,
+
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(WarehouseProductCombinationModel.AttributesXml))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.AttributesXml").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll,
+                        Render = new RenderCustom("renderProductAttributesCombinationsColumnAttributesXml")
+                        },
+                        new ColumnProperty(nameof(WarehouseProductCombinationModel.TotalQuantity))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.TotalQuantity").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(WarehouseProductCombinationModel.DamagedQuantity))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.DamagedQuantity").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(WarehouseProductCombinationModel.ReturnedToVendorQuantity))
+                        {
+                        Title = T("Admin.Warehouses.WarehouseProductCombination.Fields.ReturnedToVendorQuantity").Text,
+                        ClassName =  NopColumnClassDefaults.CenterAll
+                        },
+                        new ColumnProperty(nameof(WarehouseProductCombinationModel.Sku))
+                        {
+                        Title = T("Admin.Common.Print").Text,
+                        Width = "100",
+                        ClassName =  NopColumnClassDefaults.CenterAll,
+                        Render = new RenderCustom("renderPrintBarcode")
+                        },
                         }
                    })
+                    </div>
 
+                    <div class="modal" id="printBarcode" tabindex="-1" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="printBarcodeLabel">@T("Admin.Common.Print")</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="cancelSubmission()">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="barcodeForm">
+                                        <div class="form-group row">
+                                            <label for="Sku" class="col-md-4 col-form-label">@T("Admin.Warehouses.WarehouseProductCombination.Fields.Sku")</label>
+                                            <div class="col-md-8">
+                                                <input id="Sku" type="text" class="form-control" disabled />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="Quantity" class="col-md-4 col-form-label">@T("Admin.Warehouses.Barcode.Quantity")</label>
+                                            <div class="col-md-8">
+                                                <input id="Quantity" type="number" class="form-control" required />
+                                                <div class="invalid-feedback">
+                                                    Please provide a valid quantity.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="confirmSubmit" class="btn btn-primary">
+                                        @T("Admin.Common.Print")
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="cancelSubmission()">
+                                        @T("Admin.Warehouses.Barcode.ConfirmationCancel")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -130,14 +161,124 @@
 </section>
 
 <script>
+
+    $(document).ready(function () {
+        $('#printBarcode').hide();
+
+
+        $('#confirmSubmit').on('click', function (e) {
+            e.preventDefault();
+
+            //user entered quantity in range.
+            if (isQuantityValid($('#Quantity').val())) {
+                //generate the pdf
+                generatePDF();
+            }
+        });
+
+
+    })
+
+    function generatePDF() {
+        
+        // prepare data
+        var sku = $('#printBarcode #Sku').val();
+        var quantity = $('#Quantity').val();
+        var warehouseId = @Model.WarehouseId;
+
+        var apiUrl = '/api/WarehouseProducts/GetUnprintedBarcodes?warehouseId=' + warehouseId + '&sku=' + sku + '&quantity=' + quantity;
+
+        // Perform the AJAX request
+        $.ajax(
+            {
+                url: apiUrl,
+                type: 'POST',
+                xhrFields:
+                {
+                    responseType: 'blob'  // Important for handling binary data
+                },
+                success: function (data) {
+
+                    // Create a Blob from the PDF data
+                    var blob = new Blob([data], { type: 'application/pdf' });
+
+                    // Generate a URL for the Blob
+                    var pdfUrl = URL.createObjectURL(blob);
+
+                    // Create and open a new window for the PDF
+                    var pdfWindow = window.open("");
+                    if (!pdfWindow) {
+                        console.log("Popup blocked or window failed to open");
+                        return;
+                    }
+                    pdfWindow.document.write(
+                        '<html><head><title>Barcodes PDF</title></head><body style="margin:0; height:100%;">' +
+                        '<iframe src="' + pdfUrl + '" style="width:100%; height:100%; border:none;"></iframe>' +
+                        '</body></html>'
+                    );
+
+                    pdfWindow.document.close();
+
+                    // Clean up the Blob URL after the window is closed
+                    pdfWindow.onbeforeunload = function () {
+                        URL.revokeObjectURL(pdfUrl);
+                    };
+
+                    $('#Quantity').val('');
+                    $('#printBarcode').hide();
+                    location.reload();
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle errors here
+                    console.log('Error while generating the pdf:', xhr.status, xhr.responseText)
+                }
+            });
+    }
+
+    function isQuantityValid(quantity) {
+        if (parseInt(quantity) > 0 || parseInt(quantity) <= 10000) {
+            return true;
+        }
+        return false;
+    }
+
+    //customize the printing column in the grid
+    function renderPrintBarcode(data, type, full, meta) {
+
+        var sku = full.Sku;
+
+        return `
+                    <button type="button" class="btn btn-primary" onclick="renderPrintingModal('${sku}')">
+    @T("Admin.Common.Print")
+                    </button>
+                `;
+    }
+
+    //Populate the sku in the confirmation modal
+    function renderPrintingModal(sku) {
+        $('#printBarcode #Sku').val(sku);
+        $('#printBarcode').modal('show');
+    }
+
+    //Display the attributes in the right format in the grid
     function renderProductAttributesCombinationsColumnAttributesXml(data, type, row, meta) {
         var warnings = (row.Warnings != null) ? '<div><span style="color: red">' + row.Warnings + '</span></div>' : '';
         return row.AttributesXml + warnings;
     }
 
+    
+    // hide the confirmation modal
+    function cancelSubmission() {
+        $('#printBarcode').hide();
+    }
+
+
+    //Display the Availability Status right in Availability column
     function renderAvailabilityStatus(data, type, row) {
         return data ? '@T("Admin.Warehouses.WarehouseProductCombination.Values.Available")' : '@T("Admin.Warehouses.WarehouseProductCombination.Values.Unavailable")';
     }
+
 </script>
 
 
